@@ -2,7 +2,7 @@ package net.minecraftforge.coremod;
 
 import cpw.mods.modlauncher.api.*;
 import jdk.nashorn.api.scripting.*;
-import net.minecraftforge.fml.coremodapi.*;
+import net.minecraftforge.forgespi.*;
 import javax.script.*;
 import java.nio.file.*;
 import java.util.*;
