@@ -1,0 +1,36 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        // The following is only necessary if you want to use SNAPSHOT releases.
+        // maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    }
+    dependencies {
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0'
+    }
+}
+
+group 'net.minecraftforge.coremod'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "forge"
+        url = "http://files.minecraftforge.net/maven"
+    }
+}
+
+dependencies {
+    compile group: "cpw.mods", name: "modlauncher", version: "0.1-SNAPSHOT"
+    testCompile "org.junit.jupiter:junit-jupiter-api:5.0.0"
+    testCompile(group: 'org.powermock', name: 'powermock-core', version: '1.7.1')
+    testCompile "org.hamcrest:hamcrest-core:1.3"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:5.0.0"
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.9.0'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.9.0'
+}
