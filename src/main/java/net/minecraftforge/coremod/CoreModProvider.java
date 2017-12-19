@@ -1,7 +1,7 @@
 package net.minecraftforge.coremod;
 
 import cpw.mods.modlauncher.api.*;
-import net.minecraftforge.fml.coremodapi.*;
+import net.minecraftforge.forgespi.*;
 
 import java.util.*;
 

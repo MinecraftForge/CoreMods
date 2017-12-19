@@ -4,6 +4,7 @@ import cpw.mods.modlauncher.api.*;
 import jdk.nashorn.api.scripting.*;
 import net.minecraftforge.forgespi.*;
 import javax.script.*;
+import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
@@ -30,7 +31,7 @@ public class CoreMod {
             ScriptObjectMirror som = (ScriptObjectMirror) scriptEngine.eval(file.readCoreMod());
             this.javaScript = (Map<String, ScriptObjectMirror>) ((Invocable) scriptEngine).invokeFunction("initializeCoreMod");
             this.loaded = true;
-        } catch (ScriptException | NoSuchMethodException e) {
+        } catch (IOException | ScriptException | NoSuchMethodException e) {
             this.loaded = false;
             this.error = e;
         }
