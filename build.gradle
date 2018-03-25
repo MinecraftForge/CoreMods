@@ -9,13 +9,25 @@ buildscript {
     }
 }
 
+plugins {
+    id 'org.ajoberstar.grgit' version '2.1.1'
+}
+apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'maven'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'jacoco'
+
 group 'net.minecraftforge.coremod'
 version '1.0-SNAPSHOT'
 
-apply plugin: 'org.junit.platform.gradle.plugin'
-apply plugin: 'java'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jacoco {
+    toolVersion = "0.7.9"
+}
 
 repositories {
     mavenCentral()
@@ -27,11 +39,86 @@ repositories {
 
 dependencies {
     compile group: "cpw.mods", name: "modlauncher", version: "0.1-SNAPSHOT"
-    testCompile "org.junit.jupiter:junit-jupiter-api:5.0.0"
+    testCompile "org.junit.jupiter:junit-jupiter-api:5.0.2"
     testCompile(group: 'org.powermock', name: 'powermock-core', version: '1.7.1')
     testCompile "org.hamcrest:hamcrest-core:1.3"
-    testRuntime "org.junit.jupiter:junit-jupiter-engine:5.0.0"
-    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.9.0'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.9.0'
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:5.0.2"
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.10.0'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.10.0'
     compile group: 'net.minecraftforge', name: 'forgespi', version: "1.0-SNAPSHOT"
+}
+
+jar {
+    manifest {
+        attributes(["Specification-Title": "coremods",
+                    "Specification-Vendor": "Forge",
+                    "Specification-Version": "1", // Currently version 1 of the coremod specification
+                    "Implementation-Title": project.name,
+                    "Implementation-Version": "${version}+${System.getenv("BUILD_NUMBER")?:0}+${grgit.head().getAbbreviatedId(8)}",
+                    "Implementation-Vendor" :"Forge",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                    "Git-Commit": grgit.head().getAbbreviatedId(8),
+                    "Git-Branch": grgit.branch.getCurrent().getName() ],
+                "net/minecraftforge/coremod/")
+    }
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        if (project.hasProperty('forgeMavenPassword'))
+        {
+            repository(url: "http://files.minecraftforge.net/maven/manage/upload") {
+                authentication(userName: project.getProperty('forgeMavenUser'), password: project.getProperty('forgeMavenPassword'))
+            }
+        } else {
+            repository(url: 'file://localhost/' + project.file('repo').getAbsolutePath())
+        }
+        pom {
+            groupId = project.group
+            artifactId = project.archivesBaseName
+            project {
+                name project.archivesBaseName
+                packaging 'jar'
+                description 'Coremods Library'
+                url 'https://github.com/cpw/coremods'
+
+                scm {
+                    url 'https://github.com/cpw/coremods'
+                    connection 'scm:git:git://github.com/cpw/coremods.git'
+                    developerConnection 'scm:git:git@github.com:cpw/coremods.git'
+                }
+
+                issueManagement {
+                    system 'github'
+                    url 'https://github.com/cpw/coremods/issues'
+                }
+
+                licenses {
+                    license {
+                        name 'LGPLv2.1'
+                        url 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'cpw'
+                        name 'cpw'
+                        roles { role 'developer' }
+                    }
+                }
+            }
+        }
+    }
 }

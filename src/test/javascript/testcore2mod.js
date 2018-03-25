@@ -7,7 +7,7 @@ function initializeCoreMod() {
         'coremodtwo': {
             'target': {
                 'type': 'CLASS',
-                'names': function() { return [ 'cpw.mods.testtarget.Test2', 'cpw.mods.testtarget.Test3' ] }
+                'names': function(listofclasses) { return [ 'cpw.mods.testtarget.Test2', 'cpw.mods.testtarget.Test3' ] }
             },
             'transformer': function(classNode) {
                 print("Cheese", classNode);

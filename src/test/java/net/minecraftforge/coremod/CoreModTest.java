@@ -1,7 +1,7 @@
 package net.minecraftforge.coremod;
 
 import cpw.mods.modlauncher.api.*;
-import net.minecraftforge.fml.coremodapi.*;
+import net.minecraftforge.forgespi.*;
 import org.junit.jupiter.api.*;
 import org.objectweb.asm.tree.*;
 
@@ -33,6 +33,7 @@ public class CoreModTest {
             return this.path;
         }
     }
+    @SuppressWarnings("unchecked")
     @Test
     void testJSLoading() {
         final CoreModEngine coreModEngine = new CoreModEngine();
