@@ -1,39 +1,40 @@
 pipeline {
-  agent {
-    docker {
-        image 'gradle:latest'
-        args '-v gradlecache:/home/gradle/.gradle'
+    agent {
+        docker {
+            image 'gradlewrapper:latest'
+            args '-v gradlecache:/gradlecache'
+        }
     }
-  }
-  environment {
-    GRADLE_ARGS='--no-daemon --info'
-  }
-  stages {
-    stage('fetch') {
-      steps {
-        git(url: 'https://github.com/cpw/coremods.git', changelog: true)
-      }
+    environment {
+        GRADLE_ARGS = '-Dorg.gradle.daemon.idletimeout=5000'
     }
-    stage('buildandtest') {
-      steps {
-        sh './gradlew ${GRADLE_ARGS} --refresh-dependencies --continue build test'
-      }
+
+    stages {
+        stage('fetch') {
+            steps {
+                git(url: 'https://github.com/cpw/coremods.git', changelog: true)
+            }
+        }
+        stage('buildandtest') {
+            steps {
+                sh './gradlew ${GRADLE_ARGS} --refresh-dependencies --continue build test'
+            }
+        }
+        stage('publish') {
+            environment {
+                FORGE_MAVEN = credentials('forge-maven-forge-user')
+            }
+            steps {
+                sh './gradlew ${GRADLE_ARGS} publish -PforgeMavenUser=${FORGE_MAVEN_USR} -PforgeMavenPassword=${FORGE_MAVEN_PSW}'
+                sh 'curl --user ${FORGE_MAVEN} http://files.minecraftforge.net/maven/manage/promote/latest/net.minecraftforge.coremods/${BUILD_NUMBER}'
+            }
+        }
     }
-    stage('publish') {
-      environment {
-        FORGE_MAVEN = credentials('forge-maven-forge-user')
-      }
-      steps {
-        sh './gradlew ${GRADLE_ARGS} publish -PforgeMavenUser=${FORGE_MAVEN_USR} -PforgeMavenPassword=${FORGE_MAVEN_PSW}'
-        sh 'curl --user ${FORGE_MAVEN} http://files.minecraftforge.net/maven/manage/promote/latest/net.minecraftforge.coremods/${BUILD_NUMBER}'
-      }
+    post {
+        always {
+          archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
+          junit 'build/test-results/*/*.xml'
+          jacoco sourcePattern: '**/src/*/java'
+        }
     }
-  }
-  post {
-    always {
-      archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
-      junit 'build/test-results/**/*.xml'
-      jacoco sourcePattern: '**/src/*/java'
-    }
-  }
 }
