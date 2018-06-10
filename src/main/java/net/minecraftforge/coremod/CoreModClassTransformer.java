@@ -2,15 +2,17 @@ package net.minecraftforge.coremod;
 
 import cpw.mods.modlauncher.api.*;
 import jdk.nashorn.api.scripting.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.tree.*;
 
 import javax.annotation.*;
 import java.util.*;
 
 import static net.minecraftforge.coremod.Logging.XFORM;
-import static net.minecraftforge.coremod.Logging.cmlog;
 
 public class CoreModClassTransformer implements ITransformer<ClassNode> {
+    private static final Logger LOGGER = LogManager.getLogger("CoreMod");
     private final CoreMod coreMod;
     private final Set<Target> targets;
     private final ScriptObjectMirror function;
@@ -26,12 +28,12 @@ public class CoreModClassTransformer implements ITransformer<ClassNode> {
     @Nonnull
     @Override
     public ClassNode transform(final ClassNode input, final ITransformerVotingContext context) {
-        cmlog.debug(XFORM, "Transforming {}", input.name);
+        LOGGER.debug(XFORM, "Transforming {}", input.name);
         ClassNode result = input;
         try {
             result = (ClassNode) function.call(function, input);
         } catch (Exception e) {
-            cmlog.error(XFORM, "Error occurred applying transform of coremod {} function {}", e, this.coreMod.getPath(), this.coreName);
+            LOGGER.error(XFORM, "Error occurred applying transform of coremod {} function {}", e, this.coreMod.getPath(), this.coreName);
         }
         return result;
     }

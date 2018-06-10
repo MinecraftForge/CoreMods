@@ -3,14 +3,15 @@ package net.minecraftforge.coremod;
 import cpw.mods.modlauncher.api.*;
 import jdk.nashorn.api.scripting.*;
 import net.minecraftforge.forgespi.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.script.*;
 import java.util.*;
 import java.util.stream.*;
 
-import static net.minecraftforge.coremod.Logging.cmlog;
-
 public class CoreModEngine {
+    private static final Logger LOGGER = LogManager.getLogger("CoreMod");
     private List<CoreMod> coreMods = new ArrayList<>();
 
     void loadCoreMod(ICoreModFile coremod) {
@@ -26,12 +27,12 @@ public class CoreModEngine {
     }
 
     private void initialize(final CoreMod coreMod) {
-        cmlog.debug("Loading CoreMod from {}", coreMod.getPath());
+        LOGGER.debug("Loading CoreMod from {}", coreMod.getPath());
         coreMod.initialize();
         if (coreMod.hasError()) {
-            cmlog.error("Error occurred initializing CoreMod", coreMod.getError());
+            LOGGER.error("Error occurred initializing CoreMod", coreMod.getError());
         } else {
-            cmlog.debug("CoreMod loaded successfully");
+            LOGGER.debug("CoreMod loaded successfully");
         }
     }
 }
