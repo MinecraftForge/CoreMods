@@ -78,6 +78,8 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             pom {
+                from components.java
+                artifact sourcesJar
                 name = 'Core Mods'
                 description = 'Core modding framework for use with forge'
                 url = 'https://github.com/cpw/coremods'
