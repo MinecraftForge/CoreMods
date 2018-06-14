@@ -13,11 +13,15 @@ import java.util.stream.*;
 public class CoreModEngine {
     private static final Logger LOGGER = LogManager.getLogger("CoreMod");
     private List<CoreMod> coreMods = new ArrayList<>();
-
+    private static final List<String> ALLOWED_PACKAGES = Arrays.asList(
+            "org.objectweb.asm."
+    );
     void loadCoreMod(ICoreModFile coremod) {
         // We have a factory per coremod, to provide namespace and functional isolation between coremods
         final NashornScriptEngineFactory nashornScriptEngineFactory = new NashornScriptEngineFactory();
-        final ScriptEngine scriptEngine = nashornScriptEngineFactory.getScriptEngine(s -> s.startsWith("org.objectweb.asm."));
+        final ScriptEngine scriptEngine = nashornScriptEngineFactory.getScriptEngine(
+                s -> ALLOWED_PACKAGES.stream().anyMatch(s::startsWith)
+        );
         coreMods.add(new CoreMod(coremod, scriptEngine));
     }
 
