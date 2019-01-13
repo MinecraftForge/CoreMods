@@ -2,7 +2,7 @@ package net.minecraftforge.coremod;
 
 import cpw.mods.modlauncher.api.*;
 import jdk.nashorn.api.scripting.*;
-import net.minecraftforge.forgespi.*;
+import net.minecraftforge.forgespi.coremod.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -1,7 +1,7 @@
 package net.minecraftforge.coremod;
 
 import cpw.mods.modlauncher.api.*;
-import net.minecraftforge.forgespi.*;
+import net.minecraftforge.forgespi.coremod.*;
 import org.junit.jupiter.api.*;
 import org.objectweb.asm.tree.*;
 
