@@ -13,14 +13,14 @@ import java.util.stream.*;
 public class CoreModEngine {
     private static final Logger LOGGER = LogManager.getLogger("CoreMod");
     private List<CoreMod> coreMods = new ArrayList<>();
-    private static final List<String> ALLOWED_PACKAGES = Arrays.asList(
-            "org.objectweb.asm."
+    private static final List<String> ALLOWED_CLASSES = Arrays.asList(
+            "net.minecraftforge.coremod.api.ASMAPI","org.objectweb.asm.Opcodes"
     );
     void loadCoreMod(ICoreModFile coremod) {
         // We have a factory per coremod, to provide namespace and functional isolation between coremods
         final NashornScriptEngineFactory nashornScriptEngineFactory = new NashornScriptEngineFactory();
         final ScriptEngine scriptEngine = nashornScriptEngineFactory.getScriptEngine(
-                s -> ALLOWED_PACKAGES.stream().anyMatch(s::startsWith)
+                s -> ALLOWED_CLASSES.stream().anyMatch(s::equals)
         );
         coreMods.add(new CoreMod(coremod, scriptEngine));
     }

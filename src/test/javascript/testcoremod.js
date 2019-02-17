@@ -8,9 +8,8 @@ function initializeCoreMod() {
             },
             'transformer': function(classNode) {
                 print("Cheese ", classNode.name);
-                var methodnode = Java.type('org.objectweb.asm.tree.MethodNode')
+                var tmp=Java.type('net.minecraftforge.coremod.api.ASMAPI').getMethodNode()
                 var opcodes = Java.type('org.objectweb.asm.Opcodes')
-                var tmp = new methodnode(opcodes.ASM5);
                 tmp.name = 'dummyMethod';
                 tmp.visitVarInsn(opcodes.ALOAD, 0);
                 tmp.visitMethodInsn(opcodes.INVOKESTATIC, "net/minecraftforge/fml/FMLTransformers", "hackName", "()Ljava/lang/String;", false);
