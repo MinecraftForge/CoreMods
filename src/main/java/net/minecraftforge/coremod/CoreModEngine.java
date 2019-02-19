@@ -14,7 +14,31 @@ public class CoreModEngine {
     private static final Logger LOGGER = LogManager.getLogger("CoreMod");
     private List<CoreMod> coreMods = new ArrayList<>();
     private static final List<String> ALLOWED_CLASSES = Arrays.asList(
-            "net.minecraftforge.coremod.api.ASMAPI","org.objectweb.asm.Opcodes"
+            "net.minecraftforge.coremod.api.ASMAPI","org.objectweb.asm.Opcodes",
+
+            // Editing the code of methods
+            "org.objectweb.asm.tree.AbstractInsnNode","org.objectweb.asm.tree.FieldInsnNode",
+            "org.objectweb.asm.tree.FrameNode","org.objectweb.asm.tree.IincInsnNode",
+            "org.objectweb.asm.tree.InsnNode","org.objectweb.asm.tree.IntInsnNode",
+            "org.objectweb.asm.tree.InvokeDynamicInsnNode","org.objectweb.asm.tree.JumpInsnNode",
+            "org.objectweb.asm.tree.LabelNode","org.objectweb.asm.tree.LdcInsnNode",
+            "org.objectweb.asm.tree.LineNumberNode","org.objectweb.asm.tree.LocalVariableAnnotationNode",
+            "org.objectweb.asm.tree.LocalVariableNode","org.objectweb.asm.tree.LookupSwitchInsnNode",
+            "org.objectweb.asm.tree.MethodInsnNode","org.objectweb.asm.tree.MultiANewArrayInsnNode",
+            "org.objectweb.asm.tree.TableSwitchInsnNode","org.objectweb.asm.tree.TryCatchBlockNode",
+            "org.objectweb.asm.tree.TypeAnnotationNode","org.objectweb.asm.tree.TypeInsnNode",
+            "org.objectweb.asm.tree.VarInsnNode",
+
+            // Adding new fields to classes
+            "org.objectweb.asm.tree.FieldNode",
+
+            // Adding new methods to classes
+            "org.objectweb.asm.tree.MethodNode","org.objectweb.asm.tree.ParameterNode",
+
+            // Misc stuff referenced in above classes that's probably useful
+            "org.objectweb.asm.Attribute","org.objectweb.asm.Handle",
+            "org.objectweb.asm.Label","org.objectweb.asm.Type",
+            "org.objectweb.asm.TypePath","org.objectweb.asm.TypeReference"
     );
     void loadCoreMod(ICoreModFile coremod) {
         // We have a factory per coremod, to provide namespace and functional isolation between coremods
