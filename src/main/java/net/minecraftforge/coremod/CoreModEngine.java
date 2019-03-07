@@ -46,6 +46,12 @@ public class CoreModEngine {
         final ScriptEngine scriptEngine = nashornScriptEngineFactory.getScriptEngine(
                 s -> ALLOWED_CLASSES.stream().anyMatch(s::equals)
         );
+
+        final ScriptContext jsContext = scriptEngine.getContext();
+        // remove the load and quit methods from javascript. They don't serve a useful purpose
+        // and can cause annoying holes in what is meant to be a sandboxed environment
+        jsContext.removeAttribute("load", jsContext.getAttributesScope("load"));
+        jsContext.removeAttribute("quit", jsContext.getAttributesScope("quit"));
         coreMods.add(new CoreMod(coremod, scriptEngine));
     }
 
