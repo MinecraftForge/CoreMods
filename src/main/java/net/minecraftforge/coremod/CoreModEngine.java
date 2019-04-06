@@ -48,10 +48,13 @@ public class CoreModEngine {
         );
 
         final ScriptContext jsContext = scriptEngine.getContext();
-        // remove the load and quit methods from javascript. They don't serve a useful purpose
-        // and can cause annoying holes in what is meant to be a sandboxed environment
+        // remove the load, loadWithNewGlobal, exit and quit methods from javascript.
+        // They don't serve a useful purpose and can cause annoying holes in what is
+        // meant to be a sandboxed environment.
         jsContext.removeAttribute("load", jsContext.getAttributesScope("load"));
         jsContext.removeAttribute("quit", jsContext.getAttributesScope("quit"));
+        jsContext.removeAttribute("loadWithNewGlobal", jsContext.getAttributesScope("loadWithNewGlobal"));
+        jsContext.removeAttribute("exit", jsContext.getAttributesScope("exit"));
         coreMods.add(new CoreMod(coremod, scriptEngine));
     }
 
