@@ -33,4 +33,8 @@ public class ASMAPI {
     private static String map(String name, INameMappingService.Domain domain) {
         return Launcher.INSTANCE.environment().findNameMapping("srg").map(f -> f.apply(domain, name)).orElse(name);
     }
+
+    public static boolean getSystemPropertyFlag(final String propertyName) {
+        return Boolean.getBoolean(System.getProperty("coremod."+propertyName, "TRUE"));
+    }
 }

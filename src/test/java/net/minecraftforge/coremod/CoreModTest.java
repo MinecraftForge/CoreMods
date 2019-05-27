@@ -32,6 +32,11 @@ public class CoreModTest {
         public Path getPath() {
             return this.path;
         }
+
+        @Override
+        public String getOwnerId() {
+            return "dummy";
+        }
     }
     @SuppressWarnings("unchecked")
     @Test

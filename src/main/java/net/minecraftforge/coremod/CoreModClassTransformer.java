@@ -34,7 +34,7 @@ public class CoreModClassTransformer implements ITransformer<ClassNode> {
         try {
             result = (ClassNode) function.call(function, input);
         } catch (Exception e) {
-            LOGGER.error(XFORM_MARKER, "Error occurred applying transform of coremod {} function {}", e, this.coreMod.getPath(), this.coreName);
+            LOGGER.error(XFORM_MARKER, "Error occurred applying transform of coremod {} function {}", this.coreMod.getPath(), this.coreName, e);
         }
         return result;
     }
@@ -49,5 +49,10 @@ public class CoreModClassTransformer implements ITransformer<ClassNode> {
     @Override
     public Set<Target> targets() {
         return targets;
+    }
+
+    @Override
+    public String[] labels() {
+        return new String[] { coreMod.getFile().getOwnerId(), coreName };
     }
 }

@@ -70,4 +70,8 @@ public class CoreMod {
     public Exception getError() {
         return error;
     }
+
+    public ICoreModFile getFile() {
+        return file;
+    }
 }
