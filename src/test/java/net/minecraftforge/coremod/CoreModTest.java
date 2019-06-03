@@ -44,6 +44,7 @@ public class CoreModTest {
         final CoreModEngine coreModEngine = new CoreModEngine();
         coreModEngine.loadCoreMod(new JSFileLoader("src/test/javascript/testcoremod.js"));
         coreModEngine.loadCoreMod(new JSFileLoader("src/test/javascript/testcore2mod.js"));
+        coreModEngine.loadCoreMod(new JSFileLoader("src/test/javascript/testmethodcoremod.js"));
         final List<ITransformer<?>> iTransformers = coreModEngine.initializeCoreMods();
         iTransformers.forEach(t -> {
             System.out.printf("targ: %s\n", t.targets().stream().map(ITransformer.Target::getClassName).collect(Collectors.joining(",")));

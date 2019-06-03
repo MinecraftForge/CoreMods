@@ -5,6 +5,10 @@ public class TestClass {
         System.out.println("hello");
     }
 
+    public static boolean testMethod() {
+        return true;
+    }
+
     public static void main(String... args) {
         cheese();
     }

@@ -2,6 +2,10 @@ package net.minecraftforge.coremod;
 
 import cpw.mods.modlauncher.api.*;
 import jdk.nashorn.api.scripting.*;
+import net.minecraftforge.coremod.api.ASMAPI;
+import net.minecraftforge.coremod.transformer.CoreModClassTransformer;
+import net.minecraftforge.coremod.transformer.CoreModFieldTransformer;
+import net.minecraftforge.coremod.transformer.CoreModMethodTransformer;
 import net.minecraftforge.forgespi.coremod.*;
 import javax.script.*;
 import java.io.*;
@@ -57,9 +61,16 @@ public class CoreMod {
                         ((ScriptObjectMirror)((ScriptObjectMirror)targetData.getMember("names")).call(targetData)).values().stream().map(o->(String)o).map(ITransformer.Target::targetClass).collect(Collectors.toSet()) :
                         Stream.of(ITransformer.Target.targetClass((String) targetData.get("name"))).collect(Collectors.toSet());
                 return new CoreModClassTransformer(this, coreName, targets, function);
+            case METHOD:
+                targets = Collections.singleton(ITransformer.Target.targetMethod(
+                        (String) targetData.get("class"), ASMAPI.mapMethod((String) targetData.get("methodName")), (String) targetData.get("methodDescription")));
+                return new CoreModMethodTransformer(this, coreName, targets, function);
+            case FIELD:
+                targets = Collections.singleton(ITransformer.Target.targetField(
+                        (String) targetData.get("class"), ASMAPI.mapField((String) targetData.get("fieldName"))));
+                return new CoreModFieldTransformer(this, coreName, targets, function);
             default:
-                targets = Collections.emptySet();
-                return null;
+                throw new RuntimeException("Unimplemented target type " + targetData);
         }
     }
 
