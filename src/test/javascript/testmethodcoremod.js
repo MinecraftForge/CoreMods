@@ -3,11 +3,11 @@ function initializeCoreMod() {
         'coremodmethod': {
             'target': {
                 'type': 'METHOD',
-                'class': 'net.minecraftforge.coremod.TestClass',
+                'class': 'cpw.mods.TestClass',
                 'methodName': 'testMethod',
-                'methodDesc': '()Z'}
+                'methodDesc': '()Z'
             },
-            'transformer': function(methodNode) {
+            'transformer': function(method) {
                 var Opcodes = Java.type('org.objectweb.asm.Opcodes');
                 var arrayLength = method.instructions.size();
                 for (var i = 0; i < arrayLength; ++i) {
@@ -21,7 +21,7 @@ function initializeCoreMod() {
                         break;
                     }
                 }
-                return methodNode;
+                return method;
             }
         }
     }

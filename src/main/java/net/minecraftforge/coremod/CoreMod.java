@@ -63,7 +63,7 @@ public class CoreMod {
                 return new CoreModClassTransformer(this, coreName, targets, function);
             case METHOD:
                 targets = Collections.singleton(ITransformer.Target.targetMethod(
-                        (String) targetData.get("class"), ASMAPI.mapMethod((String) targetData.get("methodName")), (String) targetData.get("methodDescription")));
+                        (String) targetData.get("class"), ASMAPI.mapMethod((String) targetData.get("methodName")), (String) targetData.get("methodDesc")));
                 return new CoreModMethodTransformer(this, coreName, targets, function);
             case FIELD:
                 targets = Collections.singleton(ITransformer.Target.targetField(

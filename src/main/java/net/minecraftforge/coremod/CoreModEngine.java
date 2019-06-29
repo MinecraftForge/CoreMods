@@ -5,13 +5,16 @@ import jdk.nashorn.api.scripting.*;
 import net.minecraftforge.forgespi.coremod.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import javax.script.*;
 import java.util.*;
 import java.util.stream.*;
 
 public class CoreModEngine {
-    private static final Logger LOGGER = LogManager.getLogger("CoreMod");
+    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Marker COREMOD = MarkerManager.getMarker("COREMOD");
     private List<CoreMod> coreMods = new ArrayList<>();
     private static final List<String> ALLOWED_CLASSES = Arrays.asList(
             "net.minecraftforge.coremod.api.ASMAPI","org.objectweb.asm.Opcodes",
@@ -64,12 +67,12 @@ public class CoreModEngine {
     }
 
     private void initialize(final CoreMod coreMod) {
-        LOGGER.debug("Loading CoreMod from {}", coreMod.getPath());
+        LOGGER.debug(COREMOD,"Loading CoreMod from {}", coreMod.getPath());
         coreMod.initialize();
         if (coreMod.hasError()) {
-            LOGGER.error("Error occurred initializing CoreMod", coreMod.getError());
+            LOGGER.error(COREMOD,"Error occurred initializing CoreMod", coreMod.getError());
         } else {
-            LOGGER.debug("CoreMod loaded successfully");
+            LOGGER.debug(COREMOD, "CoreMod loaded successfully");
         }
     }
 }

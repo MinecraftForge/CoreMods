@@ -6,6 +6,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 public class ASMAPI {
     public static MethodNode getMethodNode() {
@@ -37,7 +38,10 @@ public class ASMAPI {
     }
 
     private static String map(String name, INameMappingService.Domain domain) {
-        return Launcher.INSTANCE.environment().findNameMapping("srg").map(f -> f.apply(domain, name)).orElse(name);
+        return Optional.ofNullable(Launcher.INSTANCE).
+                map(Launcher::environment).
+                flatMap(env->env.findNameMapping("srg")).
+                map(f -> f.apply(domain, name)).orElse(name);
     }
 
     public static boolean getSystemPropertyFlag(final String propertyName) {
