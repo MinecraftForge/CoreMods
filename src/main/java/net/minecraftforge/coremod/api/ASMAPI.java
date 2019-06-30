@@ -54,20 +54,19 @@ public class ASMAPI {
 
     /**
      * Inserts/replaces a list after/before first {@link MethodInsnNode} that matches the parameters of these functions in the method provided.
+     * Only the first node matching is targeted, all other matches are ignored.
      * @param method The method where you want to find the node
      * @param type The type of the old method node.
      * @param owner The owner of the old method node.
      * @param name The name of the old method node. You may want to use {@link #mapMethod(String)} if this is a srg name
      * @param desc The desc of the old method node.
      * @param list The list that should be inserted
-     * @param targetAll If true, all node that match the 3 params are targeted. Otherwise, only the first one is chosen.
      * @param mode How the given code should be inserted
-     * @return The count of the replacements made
+     * @return True if the node was found, false otherwise
      */
-    public static int insertInsnList(MethodNode method, MethodType type, String owner, String name, String desc, InsnList list, boolean targetAll, InsertMode mode) {
+    public static boolean insertInsnList(MethodNode method, MethodType type, String owner, String name, String desc, InsnList list, InsertMode mode) {
         Iterator<AbstractInsnNode> nodeIterator = method.instructions.iterator();
         int opcode = type.toOpcode();
-        int counter = 0;
         while (nodeIterator.hasNext()) {
             AbstractInsnNode next = nodeIterator.next();
             if (next.getOpcode() == opcode) {
@@ -80,12 +79,11 @@ public class ASMAPI {
 
                     if (mode == InsertMode.REMOVE_ORIGINAL)
                         nodeIterator.remove();
-                    counter++;
-                    if (!targetAll) break;
+                    return true;
                 }
             }
         }
-        return counter;
+        return false;
     }
 
     /**

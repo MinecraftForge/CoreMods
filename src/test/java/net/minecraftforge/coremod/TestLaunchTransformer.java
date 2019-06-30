@@ -22,6 +22,7 @@ public class TestLaunchTransformer {
         cme.loadCoreMod(new JSFileLoader("src/test/javascript/testcoremod.js"));
         cme.loadCoreMod(new JSFileLoader("src/test/javascript/testcore2mod.js"));
         cme.loadCoreMod(new JSFileLoader("src/test/javascript/testmethodcoremod.js"));
+        cme.loadCoreMod(new JSFileLoader("src/test/javascript/testmethodcoreinsert.js"));
 
         Launcher.main("--version", "1.0", "--launchTarget", "testharness");
     }
