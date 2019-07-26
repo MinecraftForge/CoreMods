@@ -14,7 +14,7 @@ public class CoreModFieldTransformer extends CoreModBaseTransformer<FieldNode> i
 
     @Override
     FieldNode runCoremod(FieldNode input) {
-        LOGGER.debug(XFORM_MARKER, "Transforming {} with desc {}", input.name, input.desc);
+        LOGGER.debug(COREMOD, "Transforming {} with desc {}", input.name, input.desc);
         return (FieldNode) function.call(function, input);
     }
 }

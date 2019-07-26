@@ -14,7 +14,7 @@ public class CoreModMethodTransformer extends CoreModBaseTransformer<MethodNode>
 
     @Override
     MethodNode runCoremod(MethodNode input) {
-        LOGGER.debug(XFORM_MARKER, "Transforming {} with desc {}", input.name, input.desc);
+        LOGGER.debug(COREMOD, "Transforming {} with desc {}", input.name, input.desc);
         return (MethodNode) function.call(function, input);
     }
 }

@@ -14,8 +14,8 @@ import javax.annotation.Nonnull;
 import java.util.Set;
 
 public abstract class CoreModBaseTransformer<T> implements ITransformer<T> {
-    static final Logger LOGGER = LogManager.getLogger("CoreMod");
-    static final Marker XFORM_MARKER = MarkerManager.getMarker("XFORM");
+    static final Logger LOGGER = LogManager.getLogger();
+    static final Marker COREMOD = MarkerManager.getMarker("COREMOD");
     final CoreMod coreMod;
     final Set<Target> targets;
     final ScriptObjectMirror function;
@@ -35,7 +35,7 @@ public abstract class CoreModBaseTransformer<T> implements ITransformer<T> {
         try {
             result = runCoremod(result);
         } catch (Exception e) {
-            LOGGER.error(XFORM_MARKER, "Error occurred applying transform of coremod {} function {}", this.coreMod.getPath(), this.coreName, e);
+            LOGGER.error(COREMOD, "Error occurred applying transform of coremod {} function {}", this.coreMod.getPath(), this.coreName, e);
         }
         return result;
     }

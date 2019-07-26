@@ -14,7 +14,7 @@ public class CoreModClassTransformer extends CoreModBaseTransformer<ClassNode> i
 
     @Override
     ClassNode runCoremod(ClassNode input) {
-        LOGGER.debug(XFORM_MARKER, "Transforming {}", input.name);
+        LOGGER.debug(COREMOD, "Transforming {}", input.name);
         return (ClassNode) function.call(function, input);
     }
 }

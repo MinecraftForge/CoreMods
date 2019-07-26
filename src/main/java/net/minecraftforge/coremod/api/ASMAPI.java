@@ -5,7 +5,10 @@ import cpw.mods.modlauncher.api.INameMappingService;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
+import java.lang.reflect.Modifier;
 import java.util.Iterator;
+import java.util.ListIterator;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ASMAPI {
@@ -213,5 +216,63 @@ public class ASMAPI {
         for (AbstractInsnNode node : nodes)
             list.add(node);
         return list;
+    }
+
+    public static void redirectFieldToMethod(final ClassNode classNode, final String fieldName, final String methodName) {
+        MethodNode foundMethod = null;
+        FieldNode foundField = null;
+        for (FieldNode fieldNode : classNode.fields) {
+            if (Objects.equals(fieldNode.name, fieldName)) {
+                if (foundField == null) {
+                    foundField = fieldNode;
+                } else {
+                    throw new IllegalStateException("Found multiple fields with name "+fieldName);
+                }
+            }
+        }
+
+        if (foundField == null) {
+            throw new IllegalStateException("No field with name "+fieldName+" found");
+        }
+        if (!Modifier.isPrivate(foundField.access) || Modifier.isStatic(foundField.access)) {
+            throw new IllegalStateException("Field "+fieldName+" is not private and an instance field");
+        }
+
+        final String methodSignature = "()"+foundField.desc;
+
+        for (MethodNode methodNode : classNode.methods) {
+            if (Objects.equals(methodNode.desc, methodSignature)) {
+                if (foundMethod == null && Objects.equals(methodNode.name, methodName)) {
+                    foundMethod = methodNode;
+                } else if (foundMethod == null && methodName == null) {
+                    foundMethod = methodNode;
+                } else if (foundMethod != null && (methodName == null || Objects.equals(methodNode.name, methodName))) {
+                    throw new IllegalStateException("Found duplicate method with signature "+methodSignature);
+                }
+            }
+        }
+
+        if (foundMethod == null) {
+            throw new IllegalStateException("Unable to find method "+methodSignature);
+        }
+
+        for (MethodNode methodNode : classNode.methods) {
+            // skip the found getter method
+            if (methodNode == foundMethod) continue;
+            if (!Objects.equals(methodNode.desc, methodSignature)) {
+                final ListIterator<AbstractInsnNode> iterator = methodNode.instructions.iterator();
+                while (iterator.hasNext()) {
+                    AbstractInsnNode insnNode = iterator.next();
+                    if (insnNode.getOpcode() == Opcodes.GETFIELD) {
+                        FieldInsnNode fieldInsnNode = (FieldInsnNode) insnNode;
+                        if (Objects.equals(fieldInsnNode.name, fieldName)) {
+                            iterator.remove();
+                            MethodInsnNode replace = new MethodInsnNode(Opcodes.INVOKEVIRTUAL, classNode.name, foundMethod.name, foundMethod.desc, false);
+                            iterator.add(replace);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
