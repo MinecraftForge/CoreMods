@@ -5,6 +5,7 @@ import cpw.mods.modlauncher.api.INameMappingService;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Modifier;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -218,7 +219,20 @@ public class ASMAPI {
         return list;
     }
 
-    public static void redirectFieldToMethod(final ClassNode classNode, final String fieldName, final String methodName) {
+    /**
+     * Rewrites accesses to a specific field in the given class to a method-call.
+     *
+     * The field specified by fieldName must be private and non-static.
+     * The method-call the field-access is redirected to does not take any parameters and returns an object of the
+     * same type as the field.
+     * If no methodName is passed, any method matching the described signature will be used as callable method.
+     *
+     * @param classNode the class to rewrite the accesses in
+     * @param fieldName the field accesses should be redirected to
+     * @param methodName the name of the method to redirect accesses through,
+     *                   or null if any method with matching signature should be applicable
+     */
+    public static void redirectFieldToMethod(final ClassNode classNode, final String fieldName, @Nullable final String methodName) {
         MethodNode foundMethod = null;
         FieldNode foundField = null;
         for (FieldNode fieldNode : classNode.fields) {
