@@ -35,7 +35,7 @@ public class CoreMod {
             ScriptObjectMirror som = (ScriptObjectMirror) scriptEngine.eval(file.readCoreMod());
             this.javaScript = (Map<String, ScriptObjectMirror>) ((Invocable) scriptEngine).invokeFunction("initializeCoreMod");
             this.loaded = true;
-        } catch (IOException | ScriptException | NoSuchMethodException e) {
+        } catch (IOException | ScriptException | NoSuchMethodException | SecurityException e) {
             this.loaded = false;
             this.error = e;
         }
