@@ -60,7 +60,13 @@ public class CoreModEngine {
     }
 
     public List<ITransformer<?>> initializeCoreMods() {
+		SecurityManager oldSecurityManager = System.getSecurityManager();
+        SecurityManager coreModSecurityManager = new CoreModSecurityManager(oldSecurityManager);
+        // Set the security manager to our security manager without network access 
+        System.setSecurityManager(coreModSecurityManager);
         coreMods.forEach(this::initialize);
+        // Set the security manager back to what it originally was
+		System.setSecurityManager(oldSecurityManager);
         return coreMods.stream().map(CoreMod::buildTransformers).flatMap(List::stream).collect(Collectors.toList());
     }
 
