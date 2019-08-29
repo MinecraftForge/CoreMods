@@ -1,5 +1,8 @@
 function initializeCoreMod() {
     print("Hello");
+    Java.type('net.minecraftforge.coremod.api.ASMAPI').loadFile('testcoremod2.js')
+    Java.type('net.minecraftforge.coremod.api.ASMAPI').log("INFO", "HI!")
+    moreFunctions()
     return {
         'coremodone': {
             'target': {

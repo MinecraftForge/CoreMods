@@ -5,6 +5,7 @@ import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import cpw.mods.modlauncher.api.TransformerVoteResult;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import net.minecraftforge.coremod.CoreMod;
+import net.minecraftforge.coremod.CoreModTracker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -31,11 +32,14 @@ public abstract class CoreModBaseTransformer<T> implements ITransformer<T> {
     @Nonnull
     @Override
     public T transform(T input, ITransformerVotingContext context) {
+        CoreModTracker.setCoreMod(coreMod);
         T result = input;
         try {
             result = runCoremod(result);
         } catch (Exception e) {
             LOGGER.error(COREMOD, "Error occurred applying transform of coremod {} function {}", this.coreMod.getPath(), this.coreName, e);
+        } finally {
+            CoreModTracker.clearCoreMod();
         }
         return result;
     }

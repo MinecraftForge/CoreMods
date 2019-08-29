@@ -1,3 +1,3 @@
 function moreFunctions() {
-    print("Poopy");
+    print("Poopy from more functions!");
 }

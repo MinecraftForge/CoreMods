@@ -41,9 +41,16 @@ public class APIModificationTest {
         }
 
         @Override
+        public Reader getAdditionalFile(final String fileName) throws IOException {
+            return Files.newBufferedReader(this.path.getParent().resolve(fileName));
+        }
+
+        @Override
         public String getOwnerId() {
             return "dummy";
         }
+
+
     }
     @SuppressWarnings("unchecked")
     @Test

@@ -8,20 +8,20 @@ pipeline {
         }
     }
     environment {
-        GRADLE_ARGS = '-Dorg.gradle.daemon.idletimeout=5000'
+        GRADLE_ARGS = '-Dorg.gradle.daemon.idletimeout=5000 -Preckon.scope=patch'
     }
 
     stages {
         stage('fetch') {
             steps {
-                git(url: 'https://github.com/MinecraftForge/coremods.git', changelog: true)
+                checkout scm
             }
         }
         stage('buildandtest') {
             steps {
-                sh './gradlew ${GRADLE_ARGS} --refresh-dependencies -Preckon.scope=patch --continue build test'
+                sh './gradlew ${GRADLE_ARGS} --refresh-dependencies --continue build test'
                 script {
-                    env.MYVERSION = sh(returnStdout: true, script: './gradlew -Preckon.scope=patch properties -q | grep "version:" | awk \'{print $2}\'').trim()
+                    env.MYVERSION = sh(returnStdout: true, script: './gradlew ${GRADLE_ARGS} properties -q | grep "version:" | awk \'{print $2}\'').trim()
                 }
             }
             post {
@@ -41,7 +41,7 @@ pipeline {
                 FORGE_MAVEN = credentials('forge-maven-forge-user')
             }
             steps {
-                sh './gradlew ${GRADLE_ARGS} publish -PforgeMavenUser=${FORGE_MAVEN_USR} -Preckon.scope=patch -PforgeMavenPassword=${FORGE_MAVEN_PSW}'
+                sh './gradlew ${GRADLE_ARGS} publish -PforgeMavenUser=${FORGE_MAVEN_USR} -PforgeMavenPassword=${FORGE_MAVEN_PSW}'
                 sh 'curl --user ${FORGE_MAVEN} http://files.minecraftforge.net/maven/manage/promote/latest/net.minecraftforge.coremods/${BUILD_NUMBER}'
             }
         }

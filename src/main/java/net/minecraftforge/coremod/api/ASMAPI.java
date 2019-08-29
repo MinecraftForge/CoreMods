@@ -2,10 +2,13 @@ package net.minecraftforge.coremod.api;
 
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.INameMappingService;
+import net.minecraftforge.coremod.CoreModTracker;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
 import javax.annotation.Nullable;
+import javax.script.ScriptException;
+import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -288,5 +291,13 @@ public class ASMAPI {
                 }
             }
         }
+    }
+
+    public static boolean loadFile(String file) throws ScriptException, IOException {
+        return CoreModTracker.loadFileByName(file);
+    }
+
+    public static void log(String level, String message, Object... args) {
+        CoreModTracker.log(level, message, args);
     }
 }
