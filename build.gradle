@@ -17,7 +17,7 @@ targetCompatibility = 1.8
 version = grgit.describe(longDescr: true).split('-').with { "${it[0]}.${it[1]}" }
 
 jacoco {
-    toolVersion = "0.8.2"
+    toolVersion = '0.8.2'
 }
 
 def isNonStable = { String version ->
@@ -38,6 +38,10 @@ test {
 
 repositories {
     mavenCentral()
+    maven {
+        name = 'forge'
+        url = 'https://files.minecraftforge.net/maven/'
+    }
 }
 
 sourceSets {
@@ -45,33 +49,33 @@ sourceSets {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.+")
-    testImplementation("org.powermock:powermock-core:2.0.+")
-    testImplementation("org.hamcrest:hamcrest-core:2.2")
-    testImplementation("org.apache.logging.log4j:log4j-core:2.12.+")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.5.+")
-    testRuntime(sourceSets.testJars.output)
-    implementation("cpw.mods:modlauncher:5.0.+")
-    implementation("org.apache.logging.log4j:log4j-api:2.12.+")
-    implementation("org.ow2.asm:asm:7.2")
-    implementation("org.ow2.asm:asm-commons:7.2")
-    implementation("org.ow2.asm:asm-tree:7.2")
-    implementation("net.minecraftforge:forgespi:2.0.+")
-    implementation("com.google.code.findbugs:jsr305:3.0.2")
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.6.+')
+    testImplementation('org.powermock:powermock-core:2.0.+')
+    testImplementation('org.hamcrest:hamcrest-core:2.2')
+    testImplementation('org.apache.logging.log4j:log4j-core:2.11.2')
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.6.+')
+    testRuntimeOnly(sourceSets.testJars.output)
+    implementation('cpw.mods:modlauncher:5.0.+')
+    implementation('org.apache.logging.log4j:log4j-api:2.11.2')
+    implementation('org.ow2.asm:asm:7.2')
+    implementation('org.ow2.asm:asm-commons:7.2')
+    implementation('org.ow2.asm:asm-tree:7.2')
+    implementation('net.minecraftforge:forgespi:2.0.+')
+    implementation('com.google.code.findbugs:jsr305:3.0.2')
 }
 
 ext.sharedManifest = manifest {
-    attributes(["Specification-Title": "coremods",
-                "Specification-Vendor": "Forge",
-                "Specification-Version": "1", // Currently version 1 of the coremod specification
-                "Implementation-Title": project.name,
+    attributes(['Specification-Title': 'coremods',
+                'Specification-Vendor': 'forge',
+                'Specification-Version': '1', // Currently version 1 of the coremod specification
+                'Implementation-Title': project.name,
                 'Implementation-Version': "${project.version}+${System.getenv("BUILD_NUMBER")?:0}+${grgit.branch.current().getName()}.${grgit.head().abbreviatedId}",
-                "Implementation-Vendor" :"Forge",
+                'Implementation-Vendor' :'forge',
                 'Implementation-Timestamp': java.time.Instant.now().toString(),
                 'Git-Commit': grgit.head().abbreviatedId,
                 'Git-Branch': grgit.branch.current().getName(),
                 'Build-Number': "${System.getenv("BUILD_NUMBER")?:0}"],
-            "net/minecraftforge/coremod/")
+            'net/minecraftforge/coremod/')
 }
 
 jar {
@@ -131,7 +135,7 @@ publishing {
                 username project.properties.forgeMavenUser?:'fake'
                 password project.properties.forgeMavenPassword?:'news'
             }
-            url project.properties.forgeMavenURL ?: 'http://files.minecraftforge.net/maven/manage/upload'
+            url 'http://files.minecraftforge.net/maven/manage/upload'
         }
     }
 }
