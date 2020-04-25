@@ -55,12 +55,12 @@ dependencies {
     testImplementation('org.apache.logging.log4j:log4j-core:2.11.2')
     testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.6.+')
     testRuntimeOnly(sourceSets.testJars.output)
-    implementation('cpw.mods:modlauncher:5.0.+')
+    implementation('cpw.mods:modlauncher:5.1.+')
     implementation('org.apache.logging.log4j:log4j-api:2.11.2')
     implementation('org.ow2.asm:asm:7.2')
     implementation('org.ow2.asm:asm-commons:7.2')
     implementation('org.ow2.asm:asm-tree:7.2')
-    implementation('net.minecraftforge:forgespi:2.0.+')
+    implementation('net.minecraftforge:forgespi:2.1.+')
     implementation('com.google.code.findbugs:jsr305:3.0.2')
 }
 
