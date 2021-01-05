@@ -297,6 +297,11 @@ public class ASMAPI {
         return CoreModTracker.loadFileByName(file);
     }
 
+    @Nullable
+    public static Object loadData(String file) throws ScriptException, IOException {
+        return CoreModTracker.loadDataByName(file);
+    }
+
     public static void log(String level, String message, Object... args) {
         CoreModTracker.log(level, message, args);
     }

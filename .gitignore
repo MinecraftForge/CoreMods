@@ -1,6 +1,18 @@
-
+#occupational hazards
 /logs/
-/.idea/
-/build/
-/.gradle/
 /out/
+
+#eclipse
+**/bin
+**/.settings
+**/.classpath
+*.project
+
+#idea
+/.idea
+/classes
+*.iml
+
+#gradle
+/build
+/.gradle

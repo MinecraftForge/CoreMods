@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public class APIModificationTest {
 
     private class JSFileLoader implements ICoreModFile {

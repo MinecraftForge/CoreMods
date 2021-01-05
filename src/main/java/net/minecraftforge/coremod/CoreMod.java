@@ -9,6 +9,7 @@ import net.minecraftforge.coremod.transformer.CoreModMethodTransformer;
 import net.minecraftforge.forgespi.coremod.*;
 import org.apache.logging.log4j.*;
 
+import javax.annotation.Nullable;
 import javax.script.*;
 import java.io.*;
 import java.nio.file.*;
@@ -37,7 +38,7 @@ public class CoreMod {
     void initialize() {
         logger = LogManager.getLogger("net.minecraftforge.coremod.CoreMod."+this.file.getOwnerId());
         try {
-            ScriptObjectMirror som = (ScriptObjectMirror) scriptEngine.eval(file.readCoreMod());
+            scriptEngine.eval(file.readCoreMod());
             CoreModTracker.setCoreMod(this);
             this.javaScript = (Map<String, ScriptObjectMirror>) ((Invocable) scriptEngine).invokeFunction("initializeCoreMod");
             CoreModTracker.clearCoreMod();
@@ -98,6 +99,21 @@ public class CoreMod {
         Reader additional = file.getAdditionalFile(fileName);
         scriptEngine.eval(additional);
         return true;
+    }
+
+    @Nullable
+    public Object loadAdditionalData(final String fileName) throws ScriptException, IOException {
+        if (loaded) return null;
+        Reader additional = file.getAdditionalFile(fileName);
+
+        char[] buf = new char[4096];
+        StringBuilder builder = new StringBuilder();
+        int numChars;
+        while ((numChars = additional.read(buf)) >= 0)
+            builder.append(buf, 0, numChars);
+        String str = builder.toString();
+
+        return scriptEngine.eval("tmp_json_loading_variable = " + str + ";");
     }
 
     public void logMessage(final String level, final String message, final Object[] args) {

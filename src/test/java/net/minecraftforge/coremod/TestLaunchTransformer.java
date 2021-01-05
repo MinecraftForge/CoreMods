@@ -28,6 +28,7 @@ public class TestLaunchTransformer {
     }
 
     public static class Callback {
+        @SuppressWarnings("unchecked")
         public static Callable<Void> supplier() {
             final TransformingClassLoader contextClassLoader = (TransformingClassLoader) Thread.currentThread().getContextClassLoader();
             try {

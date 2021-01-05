@@ -33,6 +33,7 @@ public class TestTransformerService implements ITransformationService {
 
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Nonnull
     @Override
     public List<ITransformer> transformers() {
