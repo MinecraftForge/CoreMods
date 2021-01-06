@@ -11,13 +11,12 @@ apply plugin: 'jacoco'
 
 group 'net.minecraftforge'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 version = grgit.describe(longDescr: true).split('-').with { "${it[0]}.${it[1]}" }
 
 jacoco {
-    toolVersion = '0.8.2'
+    toolVersion = '0.8.6'
 }
 
 def isNonStable = { String version ->
@@ -34,6 +33,9 @@ dependencyUpdates {
 
 test {
     useJUnitPlatform()
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
 }
 
 repositories {
@@ -46,6 +48,22 @@ repositories {
 
 sourceSets {
     testJars
+    java15
+}
+
+eclipse.classpath.sourceSets -= [sourceSets.java15]
+// Default all standard Java compile tasks to Java 8
+// We'll specify Java 15 only for the java15 compile task
+tasks.withType(JavaCompile).configureEach {
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
+
+compileJava15Java {
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(15)
+    }
 }
 
 dependencies {
@@ -62,9 +80,14 @@ dependencies {
     implementation('org.ow2.asm:asm-tree:7.2')
     implementation('net.minecraftforge:forgespi:3.1.+')
     implementation('com.google.code.findbugs:jsr305:3.0.2')
+	
+    // The Java15 code depends on (can see) the "main" source set
+    java15Implementation files(sourceSets.main.output.classesDirs) { builtBy compileJava }
+	java15Implementation('org.openjdk.nashorn:nashorn-core:15.1.1')
 }
 
 ext.sharedManifest = manifest {
+	attributes('Multi-Release': 'true')
     attributes(['Specification-Title': 'coremods',
                 'Specification-Vendor': 'forge',
                 'Specification-Version': '1', // Currently version 1 of the coremod specification
@@ -79,6 +102,9 @@ ext.sharedManifest = manifest {
 }
 
 jar {
+    into('META-INF/versions/15') {
+        from sourceSets.java15.output
+    }
     manifest = project.manifest {
         from sharedManifest
     }

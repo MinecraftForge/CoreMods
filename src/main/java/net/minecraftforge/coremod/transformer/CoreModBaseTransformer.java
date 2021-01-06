@@ -3,7 +3,6 @@ package net.minecraftforge.coremod.transformer;
 import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.ITransformerVotingContext;
 import cpw.mods.modlauncher.api.TransformerVoteResult;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import net.minecraftforge.coremod.CoreMod;
 import net.minecraftforge.coremod.CoreModTracker;
 import org.apache.logging.log4j.LogManager;
@@ -13,16 +12,17 @@ import org.apache.logging.log4j.MarkerManager;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
+import java.util.function.Function;
 
 public abstract class CoreModBaseTransformer<T> implements ITransformer<T> {
     static final Logger LOGGER = LogManager.getLogger();
     static final Marker COREMOD = MarkerManager.getMarker("COREMOD");
     final CoreMod coreMod;
     final Set<Target> targets;
-    final ScriptObjectMirror function;
+    final Function<T, T> function;
     final String coreName;
 
-    public CoreModBaseTransformer(CoreMod coreMod, final String coreName, final Set<Target> targets, final ScriptObjectMirror function) {
+    public CoreModBaseTransformer(CoreMod coreMod, final String coreName, final Set<Target> targets, final Function<T, T> function) {
         this.coreMod = coreMod;
         this.coreName = coreName;
         this.targets = targets;

@@ -1,7 +1,6 @@
 package net.minecraftforge.coremod;
 
 import cpw.mods.modlauncher.api.*;
-import jdk.nashorn.api.scripting.*;
 import net.minecraftforge.forgespi.coremod.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +15,10 @@ public class CoreModEngine {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Marker COREMOD = MarkerManager.getMarker("COREMOD");
     private List<CoreMod> coreMods = new ArrayList<>();
-    private static final List<String> ALLOWED_CLASSES = Arrays.asList(
+    static final Set<String> ALLOWED_PACKAGES = new HashSet<>(Arrays.asList(
+            "java.util.function"
+    ));
+    static final Set<String> ALLOWED_CLASSES = new HashSet<>(Arrays.asList(
             "net.minecraftforge.coremod.api.ASMAPI","org.objectweb.asm.Opcodes",
 
             // Editing the code of methods
@@ -42,14 +44,10 @@ public class CoreModEngine {
             "org.objectweb.asm.Attribute","org.objectweb.asm.Handle",
             "org.objectweb.asm.Label","org.objectweb.asm.Type",
             "org.objectweb.asm.TypePath","org.objectweb.asm.TypeReference"
-    );
+    ));
     void loadCoreMod(ICoreModFile coremod) {
         // We have a factory per coremod, to provide namespace and functional isolation between coremods
-        final NashornScriptEngineFactory nashornScriptEngineFactory = new NashornScriptEngineFactory();
-        final ScriptEngine scriptEngine = nashornScriptEngineFactory.getScriptEngine(
-                s -> ALLOWED_CLASSES.stream().anyMatch(s::equals)
-        );
-
+        final ScriptEngine scriptEngine = NashornFactory.createEngine();
         final ScriptContext jsContext = scriptEngine.getContext();
         // remove the load, loadWithNewGlobal, exit and quit methods from javascript.
         // They don't serve a useful purpose and can cause annoying holes in what is
@@ -59,6 +57,10 @@ public class CoreModEngine {
         jsContext.removeAttribute("loadWithNewGlobal", jsContext.getAttributesScope("loadWithNewGlobal"));
         jsContext.removeAttribute("exit", jsContext.getAttributesScope("exit"));
         coreMods.add(new CoreMod(coremod, scriptEngine));
+    }
+
+    static boolean checkClass(String s) {
+        return ALLOWED_CLASSES.contains(s) || (s.lastIndexOf('.') != -1 && ALLOWED_PACKAGES.contains(s.substring(0, s.lastIndexOf('.'))));
     }
 
     public List<ITransformer<?>> initializeCoreMods() {
