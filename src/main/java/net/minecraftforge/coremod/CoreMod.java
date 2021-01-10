@@ -19,7 +19,7 @@ public class CoreMod {
     public static final Marker COREMODLOG = MarkerManager.getMarker("COREMODLOG").addParents(MarkerManager.getMarker("COREMOD"));
     private final ICoreModFile file;
     private final ScriptEngine scriptEngine;
-    private Map<String, Map<String, Object>> javaScript;
+    private Map<String, ? extends Bindings> javaScript;
     private boolean loaded = false;
     private Exception error;
     private Logger logger;
@@ -39,7 +39,7 @@ public class CoreMod {
         try {
             scriptEngine.eval(file.readCoreMod());
             CoreModTracker.setCoreMod(this);
-            this.javaScript = (Map<String, Map<String, Object>>) ((Invocable) scriptEngine).invokeFunction("initializeCoreMod");
+            this.javaScript = (Map<String, ? extends Bindings>) ((Invocable) scriptEngine).invokeFunction("initializeCoreMod");
             CoreModTracker.clearCoreMod();
             this.loaded = true;
         } catch (IOException | ScriptException | NoSuchMethodException e) {
@@ -55,9 +55,9 @@ public class CoreMod {
     }
 
     @SuppressWarnings("unchecked")
-    private ITransformer<?> buildCore(Map.Entry<String,Map<String, Object>> entry) {
+    private ITransformer<?> buildCore(Map.Entry<String,? extends Bindings> entry) {
         final String coreName = entry.getKey();
-        final Map<String, Object> data = entry.getValue();
+        final Bindings data = entry.getValue();
         final Map<String, Object> targetData = (Map<String, Object>)data.get("target");
         final ITransformer.TargetType targetType = ITransformer.TargetType.valueOf((String)targetData.get("type"));
         final Set<ITransformer.Target> targets;
@@ -88,8 +88,8 @@ public class CoreMod {
         /*
          * Takes a function returned from a previous invocation of the JS and turns it into a Function we can call from Java.
          * The old way to do it was to use the Nashorn API directly, but this isn't something we can rely on as J15 removed nashorn by default
-         * And the piont is to try and uncouple as best we can from nashorn specifics. So what we do is have the JS create a Function for us using the source for the returned function.
-         * This isn't great as doing new INTERFACE(function(){}) IS a Nashorn extension of JS, however it's also supported by other JS providers like Graal.
+         * And the point is to try and uncouple as best we can from nashorn specifics. So what we do is have the JS create a Function for us using the source for the returned function.
+         * This isn't great as doing new Function(function(){}) IS a Nashorn extension of JS, however it's also supported by other JS providers like Graal.
          * So it's technically more compatible then using the hard dep on the java class.
          */
         try {
