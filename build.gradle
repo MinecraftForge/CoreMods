@@ -15,9 +15,9 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 version = grgit.describe(longDescr: true).split('-').with { "${it[0]}.${it[1]}" }
 
-jacoco {
-    toolVersion = '0.8.6'
-}
+//jacoco {
+//    toolVersion = '0.8.6'
+//}
 
 def isNonStable = { String version ->
     def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }

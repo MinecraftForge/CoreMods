@@ -44,7 +44,7 @@ pipeline {
         always {
             archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
             junit 'build/test-results/*/*.xml'
-            jacoco sourcePattern: '**/src/*/java'
+//             jacoco sourcePattern: '**/src/*/java'
         }
     }
 }
