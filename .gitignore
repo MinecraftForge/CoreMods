@@ -1,6 +1,7 @@
 #occupational hazards
 /logs/
 /out/
+/repo/
 
 #eclipse
 **/bin

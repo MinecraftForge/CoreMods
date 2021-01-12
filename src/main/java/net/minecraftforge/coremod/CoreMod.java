@@ -61,41 +61,25 @@ public class CoreMod {
         final Map<String, Object> targetData = (Map<String, Object>)data.get("target");
         final ITransformer.TargetType targetType = ITransformer.TargetType.valueOf((String)targetData.get("type"));
         final Set<ITransformer.Target> targets;
-        final Map<String, Object> function = (Map<String, Object>)data.get("transformer");
+        final Bindings function = (Bindings)data.get("transformer");
         switch (targetType) {
             case CLASS:
                 if (targetData.containsKey("names")) {
-                    Function<Map<String, Object>, Map<String, Object>> names = wrap(targetData.get("names"));
+                    Function<Map<String, Object>, Map<String, Object>> names = NashornFactory.getFunction((Bindings)targetData.get("names"));
                     targets = names.apply(targetData).values().stream().map(o -> (String)o).map(ITransformer.Target::targetClass).collect(Collectors.toSet());
                 } else
                     targets = Stream.of(ITransformer.Target.targetClass((String)targetData.get("name"))).collect(Collectors.toSet());
-                return new CoreModClassTransformer(this, coreName, targets, wrap(function));
+                return new CoreModClassTransformer(this, coreName, targets, NashornFactory.getFunction(function));
             case METHOD:
                 targets = Collections.singleton(ITransformer.Target.targetMethod(
                         (String) targetData.get("class"), ASMAPI.mapMethod((String) targetData.get("methodName")), (String) targetData.get("methodDesc")));
-                return new CoreModMethodTransformer(this, coreName, targets, wrap(function));
+                return new CoreModMethodTransformer(this, coreName, targets, NashornFactory.getFunction(function));
             case FIELD:
                 targets = Collections.singleton(ITransformer.Target.targetField(
                         (String) targetData.get("class"), ASMAPI.mapField((String) targetData.get("fieldName"))));
-                return new CoreModFieldTransformer(this, coreName, targets, wrap(function));
+                return new CoreModFieldTransformer(this, coreName, targets, NashornFactory.getFunction(function));
             default:
                 throw new RuntimeException("Unimplemented target type " + targetData);
-        }
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    private <A,R> Function<A,R> wrap(Object obj) {
-        /*
-         * Takes a function returned from a previous invocation of the JS and turns it into a Function we can call from Java.
-         * The old way to do it was to use the Nashorn API directly, but this isn't something we can rely on as J15 removed nashorn by default
-         * And the point is to try and uncouple as best we can from nashorn specifics. So what we do is have the JS create a Function for us using the source for the returned function.
-         * This isn't great as doing new Function(function(){}) IS a Nashorn extension of JS, however it's also supported by other JS providers like Graal.
-         * So it's technically more compatible then using the hard dep on the java class.
-         */
-        try {
-            return (Function<A,R>)scriptEngine.eval("new java.util.function.Function(" + obj.toString() + ")");
-        } catch (ScriptException e) {
-            throw new RuntimeException(e);
         }
     }
 

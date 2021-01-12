@@ -157,11 +157,15 @@ publishing {
     }
     repositories {
         maven {
-            credentials {
-                username project.properties.forgeMavenUser?:'fake'
-                password project.properties.forgeMavenPassword?:'news'
-            }
-            url 'http://files.minecraftforge.net/maven/manage/upload'
+			if (project.hasProperty('forgeMavenPassword')) {
+				credentials {
+					username project.properties.forgeMavenUser
+					password project.properties.forgeMavenPassword
+				}
+				url 'https://files.minecraftforge.net/maven/manage/upload'
+			} else {
+				url 'file://' + rootProject.file('repo').getAbsolutePath()
+			}
         }
     }
 }
