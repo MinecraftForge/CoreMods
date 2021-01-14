@@ -5,10 +5,15 @@ import cpw.mods.modlauncher.api.INameMappingService;
 import net.minecraftforge.coremod.CoreModTracker;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
+import org.objectweb.asm.util.Textifier;
+import org.objectweb.asm.util.TraceClassVisitor;
+import org.objectweb.asm.util.TraceMethodVisitor;
 
 import javax.annotation.Nullable;
 import javax.script.ScriptException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Modifier;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -304,5 +309,31 @@ public class ASMAPI {
 
     public static void log(String level, String message, Object... args) {
         CoreModTracker.log(level, message, args);
+    }
+
+    public static String classNodeToString(ClassNode node) {
+        Textifier text = new Textifier();
+        node.accept(new TraceClassVisitor(null, text, null));
+        return toString(text);
+    }
+
+    public static String fieldNodeToString(FieldNode node) {
+        Textifier text = new Textifier();
+        node.accept(new TraceClassVisitor(null, text, null));
+        return toString(text);
+    }
+
+    public static String methodNodeToString(MethodNode node) {
+        Textifier text = new Textifier();
+        node.accept(new TraceMethodVisitor(text));
+        return toString(text);
+    }
+
+    private static String toString(Textifier text) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        text.print(pw);
+        pw.flush();
+        return sw.toString();
     }
 }
