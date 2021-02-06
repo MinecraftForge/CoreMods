@@ -16,7 +16,7 @@ public class CoreModEngine {
     private static final Marker COREMOD = MarkerManager.getMarker("COREMOD");
     private List<CoreMod> coreMods = new ArrayList<>();
     static final Set<String> ALLOWED_PACKAGES = new HashSet<>(Arrays.asList(
-            "java.util.function",
+            "java.util",
             "org.objectweb.asm.util" // ASM util has nice debugging things like Trace visitors
     ));
     static final Set<String> ALLOWED_CLASSES = new HashSet<>(Arrays.asList(
