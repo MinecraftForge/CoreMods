@@ -3,13 +3,13 @@ package net.minecraftforge.coremod.api;
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.INameMappingService;
 import net.minecraftforge.coremod.CoreModTracker;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceClassVisitor;
 import org.objectweb.asm.util.TraceMethodVisitor;
 
-import javax.annotation.Nullable;
 import javax.script.ScriptException;
 import java.io.IOException;
 import java.io.PrintWriter;

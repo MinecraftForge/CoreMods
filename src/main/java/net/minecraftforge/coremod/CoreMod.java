@@ -7,7 +7,8 @@ import net.minecraftforge.coremod.transformer.CoreModFieldTransformer;
 import net.minecraftforge.coremod.transformer.CoreModMethodTransformer;
 import net.minecraftforge.forgespi.coremod.*;
 import org.apache.logging.log4j.*;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+
 import javax.script.*;
 import java.io.*;
 import java.nio.file.*;

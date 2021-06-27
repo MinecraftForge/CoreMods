@@ -9,8 +9,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -29,7 +29,7 @@ public abstract class CoreModBaseTransformer<T> implements ITransformer<T> {
         this.function = function;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public T transform(T input, ITransformerVotingContext context) {
         CoreModTracker.setCoreMod(coreMod);
@@ -46,13 +46,13 @@ public abstract class CoreModBaseTransformer<T> implements ITransformer<T> {
 
     abstract T runCoremod(T input);
 
-    @Nonnull
+    @NotNull
     @Override
     public TransformerVoteResult castVote(ITransformerVotingContext context) {
         return TransformerVoteResult.YES;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Set<Target> targets() {
         return targets;

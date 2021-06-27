@@ -4,8 +4,8 @@ import cpw.mods.modlauncher.api.IEnvironment;
 import cpw.mods.modlauncher.api.ITransformationService;
 import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.IncompatibleEnvironmentException;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
 
@@ -13,7 +13,7 @@ public class TestTransformerService implements ITransformationService {
 
     private List<ITransformer<?>> transformers;
 
-    @Nonnull
+    @NotNull
     @Override
     public String name() {
         return "coremodtest";
@@ -24,8 +24,8 @@ public class TestTransformerService implements ITransformationService {
     }
 
     @Override
-    public void beginScanning(final IEnvironment environment) {
-
+    public List<Resource> beginScanning(final IEnvironment environment) {
+        return List.of();
     }
 
     @Override
@@ -34,7 +34,7 @@ public class TestTransformerService implements ITransformationService {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Nonnull
+    @NotNull
     @Override
     public List<ITransformer> transformers() {
         transformers = TestLaunchTransformer.getTransformers();

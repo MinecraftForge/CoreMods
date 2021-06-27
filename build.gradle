@@ -1,23 +1,21 @@
-
 plugins {
-    id 'org.ajoberstar.grgit' version '4.0.2'
-    id "com.github.ben-manes.versions" version '0.27.0'
+    id 'com.github.ben-manes.versions' version '0.39.0'
+    id 'net.minecraftforge.gradleutils' version '1.+'
+    id 'org.javamodularity.moduleplugin' version '1.8.7' apply false
 }
 
-apply plugin: 'maven-publish'
 apply plugin: 'java-library'
+apply plugin: 'maven-publish'
 apply plugin: 'eclipse'
-apply plugin: 'jacoco'
+apply plugin: 'org.javamodularity.moduleplugin'
 
 group 'net.minecraftforge'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
-version = grgit.describe(longDescr: true).split('-').with { "${it[0]}.${it[1]}" }
+version = gradleutils.getTagOffsetVersion()
 
-//jacoco {
-//    toolVersion = '0.8.6'
-//}
+ext.ASM_VERSION = 9.1
 
 def isNonStable = { String version ->
     def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
@@ -32,80 +30,62 @@ dependencyUpdates {
 }
 
 test {
+    exclude '**/*'
     useJUnitPlatform()
     javaLauncher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(8)
+        languageVersion = JavaLanguageVersion.of(16)
     }
 }
 
+compileTestJava {
+    exclude '**/*'
+}
+
 repositories {
-    mavenCentral()
     maven {
         name = 'forge'
-        url = 'https://files.minecraftforge.net/maven/'
+        url = 'https://maven.minecraftforge.net/'
     }
 }
 
 sourceSets {
     testJars
-    java15
-}
-
-eclipse.classpath.sourceSets -= [sourceSets.java15]
-// Default all standard Java compile tasks to Java 8
-// We'll specify Java 15 only for the java15 compile task
-tasks.withType(JavaCompile).configureEach {
-    javaCompiler = javaToolchains.compilerFor {
-        languageVersion = JavaLanguageVersion.of(8)
-    }
-}
-
-compileJava15Java {
-    javaCompiler = javaToolchains.compilerFor {
-        languageVersion = JavaLanguageVersion.of(15)
-    }
 }
 
 dependencies {
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.6.+')
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.7.+')
     testImplementation('org.powermock:powermock-core:2.0.+')
     testImplementation('org.hamcrest:hamcrest-core:2.2')
-    testImplementation('org.apache.logging.log4j:log4j-core:2.11.2')
-    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.6.+')
+    testImplementation('org.apache.logging.log4j:log4j-core:2.14.1')
+    testCompileOnly('org.jetbrains:annotations:21.0.1')
+    compileOnly('org.jetbrains:annotations:21.0.1')
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.+')
     testRuntimeOnly(sourceSets.testJars.output)
-    implementation('cpw.mods:modlauncher:6.1.+')
-    implementation('org.apache.logging.log4j:log4j-api:2.11.2')
-    implementation('org.ow2.asm:asm:7.2')
-    implementation('org.ow2.asm:asm-commons:7.2')
-    implementation('org.ow2.asm:asm-tree:7.2')
-    implementation('org.ow2.asm:asm-util:7.2')
-    implementation('net.minecraftforge:forgespi:3.1.+')
-    implementation('com.google.code.findbugs:jsr305:3.0.2')
-	
-    // The Java15 code depends on (can see) the "main" source set
-    java15Implementation files(sourceSets.main.output.classesDirs) { builtBy compileJava }
-	java15Implementation('org.openjdk.nashorn:nashorn-core:15.1.1')
+    implementation('cpw.mods:modlauncher:9.0.+')
+    implementation('org.apache.logging.log4j:log4j-api:2.14.1')
+    implementation("org.ow2.asm:asm:${ASM_VERSION}")
+    implementation("org.ow2.asm:asm-commons:${ASM_VERSION}")
+    implementation("org.ow2.asm:asm-tree:${ASM_VERSION}")
+    implementation("org.ow2.asm:asm-util:${ASM_VERSION}")
+    implementation('net.minecraftforge:forgespi:4.0.+')
+    implementation('org.openjdk.nashorn:nashorn-core:15.1.1')
 }
 
 ext.sharedManifest = manifest {
-	attributes('Multi-Release': 'true')
     attributes(['Specification-Title': 'coremods',
                 'Specification-Vendor': 'forge',
                 'Specification-Version': '1', // Currently version 1 of the coremod specification
                 'Implementation-Title': project.name,
-                'Implementation-Version': "${project.version}+${System.getenv("BUILD_NUMBER")?:0}+${grgit.branch.current().getName()}.${grgit.head().abbreviatedId}",
+                'Implementation-Version': "${project.version}+${System.getenv('BUILD_NUMBER')?:0}+${gradleutils.gitInfo.branch}.${gradleutils.gitInfo.abbreviatedId}",
                 'Implementation-Vendor' :'forge',
                 'Implementation-Timestamp': java.time.Instant.now().toString(),
-                'Git-Commit': grgit.head().abbreviatedId,
-                'Git-Branch': grgit.branch.current().getName(),
+                'Git-Commit': gradleutils.gitInfo.abbreviatedId,
+                'Git-Branch': gradleutils.gitInfo.branch,
                 'Build-Number': "${System.getenv("BUILD_NUMBER")?:0}"],
             'net/minecraftforge/coremod/')
 }
 
 jar {
-    into('META-INF/versions/15') {
-        from sourceSets.java15.output
-    }
     manifest = project.manifest {
         from sharedManifest
     }
@@ -158,12 +138,15 @@ publishing {
     }
     repositories {
         maven {
-			if (project.hasProperty('forgeMavenPassword')) {
-				credentials {
-					username project.properties.forgeMavenUser
-					password project.properties.forgeMavenPassword
-				}
-				url 'https://files.minecraftforge.net/maven/manage/upload'
+            if (System.env.MAVEN_USER) {
+                authentication {
+                    basic(BasicAuthentication)
+                }
+                credentials {
+                    username = System.env.MAVEN_USER ?: 'not'
+                    password = System.env.MAVEN_PASSWORD ?: 'set'
+                }
+                url 'https://maven.minecraftforge.net/releases'
 			} else {
 				url 'file://' + rootProject.file('repo').getAbsolutePath()
 			}

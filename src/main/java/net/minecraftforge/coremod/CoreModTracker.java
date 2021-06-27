@@ -1,6 +1,7 @@
 package net.minecraftforge.coremod;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+
 import javax.script.ScriptException;
 import java.io.IOException;
 

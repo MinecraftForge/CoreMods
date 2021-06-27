@@ -5,8 +5,8 @@ import java.util.function.Function;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 
-import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
 
 class NashornFactory {
     static ScriptEngine createEngine() {
