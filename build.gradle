@@ -1,6 +1,6 @@
 plugins {
     id 'com.github.ben-manes.versions' version '0.39.0'
-    id 'net.minecraftforge.gradleutils' version '1.+'
+    id 'net.minecraftforge.gradleutils' version '2.+'
     id 'org.javamodularity.moduleplugin' version '1.8.7' apply false
 }
 
@@ -52,6 +52,9 @@ sourceSets {
     testJars
 }
 
+changelog {
+    fromTag "1.0.0"
+}
 dependencies {
     testImplementation('org.junit.jupiter:junit-jupiter-api:5.7.+')
     testImplementation('org.powermock:powermock-core:2.0.+')
@@ -137,19 +140,6 @@ publishing {
         }
     }
     repositories {
-        maven {
-            if (System.env.MAVEN_USER) {
-                authentication {
-                    basic(BasicAuthentication)
-                }
-                credentials {
-                    username = System.env.MAVEN_USER ?: 'not'
-                    password = System.env.MAVEN_PASSWORD ?: 'set'
-                }
-                url 'https://maven.minecraftforge.net/releases'
-			} else {
-				url 'file://' + rootProject.file('repo').getAbsolutePath()
-			}
-        }
+        maven gradleutils.getPublishingForgeMaven()
     }
 }
