@@ -57,7 +57,13 @@ public class ASMAPI {
     }
 
     public static boolean getSystemPropertyFlag(final String propertyName) {
-        return Boolean.getBoolean(System.getProperty("coremod."+propertyName, "TRUE"));
+        return Boolean.getBoolean("coremod." + propertyName) || getSystemPropertyFlagOld(propertyName);
+    }
+
+    /** @deprecated Contains the old, bugged logic that {@link #getSystemPropertyFlag(String)} used to have. */
+    @Deprecated(forRemoval = true, since = "5.0")
+    private static boolean getSystemPropertyFlagOld(final String propertyName) {
+        return Boolean.getBoolean(System.getProperty("coremod." + propertyName, "TRUE"));
     }
 
     public enum InsertMode {
