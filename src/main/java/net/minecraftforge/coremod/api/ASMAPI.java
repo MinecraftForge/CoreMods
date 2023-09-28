@@ -57,17 +57,13 @@ public class ASMAPI {
     }
 
     public static boolean getSystemPropertyFlag(final String propertyName) {
-        // this has the property that CoreMods is looking for
-        String property = System.getProperty("coremod."+propertyName, "TRUE");
+        return Boolean.getBoolean("coremod."+propertyName) || getSystemPropertyFlagOld(propertyName);
+    }
 
-        // oldLogic = bugged logic that remains included for logical compatibility
-        // newLogic = fixed logic that actually checks if the system property is set to true
-        boolean oldLogic = Boolean.getBoolean(property);
-        boolean newLogic = Boolean.parseBoolean(property);
-
-        // while the two variables can be simplified into a single || statement, this improves readability
-        // and explains the bugged code that caused it in the first place
-        return newLogic || oldLogic;
+    /** @deprecated Contains the old, bugged logic that {@link #getSystemPropertyFlag(String)} used to have. */
+    @Deprecated(forRemoval = true, since = "5.0")
+    private static boolean getSystemPropertyFlagOld(final String propertyName) {
+        return Boolean.getBoolean(System.getProperty("coremod."+propertyName, "TRUE"));
     }
 
     public enum InsertMode {
