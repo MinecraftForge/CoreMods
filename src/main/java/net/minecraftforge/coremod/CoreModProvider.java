@@ -6,7 +6,7 @@ import net.minecraftforge.forgespi.coremod.*;
 import java.util.*;
 
 public class CoreModProvider implements ICoreModProvider {
-    private CoreModEngine engine = new CoreModEngine();
+    private final CoreModEngine engine = new CoreModEngine();
     @Override
     public void addCoreMod(final ICoreModFile file) {
         engine.loadCoreMod(file);

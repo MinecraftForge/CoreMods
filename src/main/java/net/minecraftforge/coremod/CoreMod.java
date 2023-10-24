@@ -63,25 +63,27 @@ public class CoreMod {
         final ITransformer.TargetType targetType = ITransformer.TargetType.valueOf((String)targetData.get("type"));
         final Set<ITransformer.Target> targets;
         final Bindings function = (Bindings)data.get("transformer");
-        switch (targetType) {
-            case CLASS:
+        return switch (targetType) {
+            case CLASS -> {
                 if (targetData.containsKey("names")) {
-                    Function<Map<String, Object>, Map<String, Object>> names = NashornFactory.getFunction((Bindings)targetData.get("names"));
-                    targets = names.apply(targetData).values().stream().map(o -> (String)o).map(ITransformer.Target::targetClass).collect(Collectors.toSet());
+                    Function<Map<String, Object>, Map<String, Object>> names = NashornFactory.getFunction((Bindings) targetData.get("names"));
+                    targets = names.apply(targetData).values().stream().map(o -> (String) o).map(ITransformer.Target::targetClass).collect(Collectors.toSet());
                 } else
-                    targets = Stream.of(ITransformer.Target.targetClass((String)targetData.get("name"))).collect(Collectors.toSet());
-                return new CoreModClassTransformer(this, coreName, targets, NashornFactory.getFunction(function));
-            case METHOD:
+                    targets = Stream.of(ITransformer.Target.targetClass((String) targetData.get("name"))).collect(Collectors.toSet());
+                yield new CoreModClassTransformer(this, coreName, targets, NashornFactory.getFunction(function));
+            }
+            case METHOD -> {
                 targets = Collections.singleton(ITransformer.Target.targetMethod(
                         (String) targetData.get("class"), ASMAPI.mapMethod((String) targetData.get("methodName")), (String) targetData.get("methodDesc")));
-                return new CoreModMethodTransformer(this, coreName, targets, NashornFactory.getFunction(function));
-            case FIELD:
+                yield new CoreModMethodTransformer(this, coreName, targets, NashornFactory.getFunction(function));
+            }
+            case FIELD -> {
                 targets = Collections.singleton(ITransformer.Target.targetField(
                         (String) targetData.get("class"), ASMAPI.mapField((String) targetData.get("fieldName"))));
-                return new CoreModFieldTransformer(this, coreName, targets, NashornFactory.getFunction(function));
-            default:
-                throw new RuntimeException("Unimplemented target type " + targetData);
-        }
+                yield new CoreModFieldTransformer(this, coreName, targets, NashornFactory.getFunction(function));
+            }
+            default -> throw new RuntimeException("Unimplemented target type " + targetData);
+        };
     }
 
     public boolean hasError() {

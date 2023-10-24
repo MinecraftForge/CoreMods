@@ -6,7 +6,7 @@ import javax.script.ScriptException;
 import java.io.IOException;
 
 public class CoreModTracker {
-    private static ThreadLocal<CoreModTracker> coreModThreadLocal = ThreadLocal.withInitial(CoreModTracker::new);
+    private static final ThreadLocal<CoreModTracker> coreModThreadLocal = ThreadLocal.withInitial(CoreModTracker::new);
 
     private CoreMod tracked;
 

@@ -146,9 +146,8 @@ public class ASMAPI {
     public static MethodInsnNode findFirstMethodCallAfter(MethodNode method, MethodType type, String owner, String name, String descriptor, int startIndex) {
         for (int i = Math.max(0, startIndex); i < method.instructions.size(); i++) {
             AbstractInsnNode node = method.instructions.get(i);
-            if (node instanceof MethodInsnNode &&
+            if (node instanceof MethodInsnNode methodInsnNode &&
                     node.getOpcode() == type.toOpcode()) {
-                MethodInsnNode methodInsnNode = (MethodInsnNode) node;
                 if (methodInsnNode.owner.equals(owner) &&
                         methodInsnNode.name.equals(name) &&
                         methodInsnNode.desc.equals(descriptor)) {
@@ -174,9 +173,8 @@ public class ASMAPI {
     public static MethodInsnNode findFirstMethodCallBefore(MethodNode method, MethodType type, String owner, String name, String descriptor, int startIndex) {
         for (int i = Math.min(method.instructions.size() - 1, startIndex); i >= 0; i--) {
             AbstractInsnNode node = method.instructions.get(i);
-            if (node instanceof MethodInsnNode &&
+            if (node instanceof MethodInsnNode methodInsnNode &&
                     node.getOpcode() == type.toOpcode()) {
-                MethodInsnNode methodInsnNode = (MethodInsnNode) node;
                 if (methodInsnNode.owner.equals(owner) &&
                         methodInsnNode.name.equals(name) &&
                         methodInsnNode.desc.equals(descriptor)) {

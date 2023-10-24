@@ -14,13 +14,13 @@ import java.util.stream.*;
 public class CoreModEngine {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Marker COREMOD = MarkerManager.getMarker("COREMOD");
-    private List<CoreMod> coreMods = new ArrayList<>();
-    static final Set<String> ALLOWED_PACKAGES = new HashSet<>(Arrays.asList(
+    private final List<CoreMod> coreMods = new ArrayList<>();
+    private static final Set<String> ALLOWED_PACKAGES = Set.of(
             "java.util",
             "java.util.function",
             "org.objectweb.asm.util" // ASM util has nice debugging things like Trace visitors
-    ));
-    static final Set<String> ALLOWED_CLASSES = new HashSet<>(Arrays.asList(
+    );
+    private static final Set<String> ALLOWED_CLASSES = Set.of(
             "net.minecraftforge.coremod.api.ASMAPI","org.objectweb.asm.Opcodes",
 
             // Editing the code of methods
@@ -46,7 +46,7 @@ public class CoreModEngine {
             "org.objectweb.asm.Attribute","org.objectweb.asm.Handle",
             "org.objectweb.asm.Label","org.objectweb.asm.Type",
             "org.objectweb.asm.TypePath","org.objectweb.asm.TypeReference"
-    ));
+    );
     void loadCoreMod(ICoreModFile coremod) {
         // We have a factory per coremod, to provide namespace and functional isolation between coremods
         final ScriptEngine scriptEngine = NashornFactory.createEngine();
