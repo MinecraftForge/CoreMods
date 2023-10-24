@@ -15,5 +15,5 @@
 *.iml
 
 #gradle
-/build
-/.gradle
+**/build
+**/.gradle

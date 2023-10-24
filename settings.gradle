@@ -4,4 +4,45 @@ pluginManagement {
         maven { url = 'https://maven.minecraftforge.net/' }
     }
 }
-rootProject.name='coremods'
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.7.0'
+}
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            version('asm', '9.6')
+            library('asm',         'org.ow2.asm', 'asm'        ).versionRef('asm')
+            library('asm-tree',    'org.ow2.asm', 'asm-tree'   ).versionRef('asm')
+            library('asm-commons', 'org.ow2.asm', 'asm-commons').versionRef('asm')
+            bundle('asm', ['asm', 'asm-tree', 'asm-commons'])
+            
+			version('junit', '5.10.0')
+			library('junit-api', 'org.junit.jupiter', 'junit-jupiter-api').versionRef('junit')
+			library('junit-engine', 'org.junit.jupiter', 'junit-jupiter-engine').versionRef('junit')
+			library('junit-platform-launcher', 'org.junit.platform:junit-platform-launcher:1.10.0')
+			bundle('junit-runtime', ['junit-engine', 'junit-platform-launcher'])
+
+            /*
+            library('unsafe', 'net.minecraftforge:unsafe:0.9.1')
+            library('securemodules', 'net.minecraftforge:securemodules:2.2.0') // Needs unsafe
+            library('gson', 'com.google.code.gson:gson:2.10.1')
+            library('jopt-simple', 'net.sf.jopt-simple:jopt-simple:5.0.4')
+            */
+            
+            library('forgespi', 'net.minecraftforge:forgespi:7.1.0') 
+            library('modlauncher', 'net.minecraftforge:modlauncher:10.1.1') // Needs securemodules
+            library('nulls', 'org.jetbrains:annotations:23.0.0')
+            library('nashorn', 'org.openjdk.nashorn:nashorn-core:15.3') // Needed by coremods, because the JRE no longer ships JS
+            
+            version('log4j', '2.19.0')
+            library('log4j-api',  'org.apache.logging.log4j', 'log4j-api' ).versionRef('log4j')
+            library('log4j-core', 'org.apache.logging.log4j', 'log4j-core').versionRef('log4j')
+        }
+    }
+}
+
+rootProject.name = 'CoreMods'
+include 'coremods-test'
+include 'coremods-test-jar'
