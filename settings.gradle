@@ -1,7 +1,34 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven { url = 'https://maven.minecraftforge.net/' }
+        maven {
+            name = 'MinecraftForge'
+            url = 'https://maven.minecraftforge.net/'
+        }
     }
 }
-rootProject.name='coremods'
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.7.0'
+}
+
+rootProject.name = 'CoreMods'
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            version('asmlib', '9.1')
+            version('log4j2', '2.14.1')
+
+            library('asm-core', 'org.ow2.asm', 'asm').versionRef('asmlib')
+            library('asm-commons', 'org.ow2.asm', 'asm-commons').versionRef('asmlib')
+            library('asm-tree', 'org.ow2.asm', 'asm-tree').versionRef('asmlib')
+            library('asm-util', 'org.ow2.asm', 'asm-util').versionRef('asmlib')
+
+            library('log4j2-core', 'org.apache.logging.log4j', 'log4j-core').versionRef('log4j2')
+            library('log4j2-api', 'org.apache.logging.log4j', 'log4j-api').versionRef('log4j2')
+
+            library('jetbrains-annotations', 'org.jetbrains', 'annotations').version('21.0.1')
+        }
+    }
+}

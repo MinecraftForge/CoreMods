@@ -1,35 +1,75 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import groovy.transform.CompileStatic
+import net.minecraftforge.gradleutils.PomUtils
+
+import java.time.Instant
+
 plugins {
+    id 'eclipse'
+    id 'java-library'
+    id 'maven-publish'
+    id 'org.cadixdev.licenser' version '0.6.1'
     id 'com.github.ben-manes.versions' version '0.39.0'
     id 'net.minecraftforge.gradleutils' version '2.+'
-    id 'org.javamodularity.moduleplugin' version '1.8.7' apply false
+    id 'org.javamodularity.moduleplugin' version '1.8.7'
 }
 
-apply plugin: 'java-library'
-apply plugin: 'maven-publish'
-apply plugin: 'eclipse'
-apply plugin: 'org.javamodularity.moduleplugin'
-
-group 'net.minecraftforge'
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
-
+group = 'net.minecraftforge'
 version = gradleutils.getTagOffsetVersion()
+println "Version: $version"
 
-ext.ASM_VERSION = 9.1
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(16)
+    }
+    withSourcesJar()
+}
 
-def isNonStable = { String version ->
-    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
-    def regex = /^[0-9,.v-]+(-r)?$/
+sourceSets {
+    testJars
+}
+
+repositories {
+    mavenCentral()
+    maven gradleutils.forgeMaven
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.+'
+    testImplementation 'org.powermock:powermock-core:2.0.+'
+    testImplementation 'org.hamcrest:hamcrest-core:2.2'
+    testImplementation libs.log4j2.core.get()
+    testCompileOnly libs.jetbrains.annotations.get()
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.+'
+    testRuntimeOnly sourceSets.testJars.output
+
+    implementation 'cpw.mods:modlauncher:9.0.+'
+    implementation libs.log4j2.api.get()
+    implementation libs.asm.core.get()
+    implementation libs.asm.commons.get()
+    implementation libs.asm.tree.get()
+    implementation libs.asm.util.get()
+    implementation 'net.minecraftforge:forgespi:4.0.+'
+    implementation 'org.openjdk.nashorn:nashorn-core:15.1.1'
+    compileOnly libs.jetbrains.annotations.get()
+}
+
+@CompileStatic
+private static boolean isNonStable(String version) {
+    version = version.toUpperCase()
+    boolean stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { String keyword -> version.contains(keyword) }
+    String regex = /^[0-9,.v-]+(-r)?$/
+
     return !stableKeyword && !(version ==~ regex)
 }
 
-dependencyUpdates {
+tasks.named('dependencyUpdates', DependencyUpdatesTask).configure {
     rejectVersionIf {
-        isNonStable(it.candidate.version)
+        isNonStable it.candidate.version
     }
 }
 
-test {
+tasks.named('test', Test).configure {
     exclude '**/*'
     useJUnitPlatform()
     javaLauncher = javaToolchains.launcherFor {
@@ -37,108 +77,59 @@ test {
     }
 }
 
-compileTestJava {
+tasks.named('compileTestJava', JavaCompile).configure {
     exclude '**/*'
 }
 
-repositories {
-    maven {
-        name = 'forge'
-        url = 'https://maven.minecraftforge.net/'
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+                'Specification-Title'     : 'coremods',
+                'Specification-Vendor'    : 'forge',
+                'Specification-Version'   : '1', // Currently version 1 of the coremod specification
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : "${project.version}+${System.getenv('BUILD_NUMBER') ?: 0}+${gradleutils.gitInfo.branch}.${gradleutils.gitInfo.abbreviatedId}",
+                'Implementation-Vendor'   : 'forge',
+                'Implementation-Timestamp': Instant.now().toString(),
+                'Git-Commit'              : gradleutils.gitInfo.abbreviatedId,
+                'Git-Branch'              : gradleutils.gitInfo.branch,
+                'Build-Number'            : "${System.getenv('BUILD_NUMBER') ?: 0}"
+        ], 'net/minecraftforge/coremod/')
     }
-}
-
-sourceSets {
-    testJars
 }
 
 changelog {
-    fromTag "1.0.0"
-}
-dependencies {
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.7.+')
-    testImplementation('org.powermock:powermock-core:2.0.+')
-    testImplementation('org.hamcrest:hamcrest-core:2.2')
-    testImplementation('org.apache.logging.log4j:log4j-core:2.14.1')
-    testCompileOnly('org.jetbrains:annotations:21.0.1')
-    compileOnly('org.jetbrains:annotations:21.0.1')
-    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.+')
-    testRuntimeOnly(sourceSets.testJars.output)
-    implementation('cpw.mods:modlauncher:9.0.+')
-    implementation('org.apache.logging.log4j:log4j-api:2.14.1')
-    implementation("org.ow2.asm:asm:${ASM_VERSION}")
-    implementation("org.ow2.asm:asm-commons:${ASM_VERSION}")
-    implementation("org.ow2.asm:asm-tree:${ASM_VERSION}")
-    implementation("org.ow2.asm:asm-util:${ASM_VERSION}")
-    implementation('net.minecraftforge:forgespi:4.0.+')
-    implementation('org.openjdk.nashorn:nashorn-core:15.1.1')
+    fromTag '1.0.0'
 }
 
-ext.sharedManifest = manifest {
-    attributes(['Specification-Title': 'coremods',
-                'Specification-Vendor': 'forge',
-                'Specification-Version': '1', // Currently version 1 of the coremod specification
-                'Implementation-Title': project.name,
-                'Implementation-Version': "${project.version}+${System.getenv('BUILD_NUMBER')?:0}+${gradleutils.gitInfo.branch}.${gradleutils.gitInfo.abbreviatedId}",
-                'Implementation-Vendor' :'forge',
-                'Implementation-Timestamp': java.time.Instant.now().toString(),
-                'Git-Commit': gradleutils.gitInfo.abbreviatedId,
-                'Git-Branch': gradleutils.gitInfo.branch,
-                'Build-Number': "${System.getenv("BUILD_NUMBER")?:0}"],
-            'net/minecraftforge/coremod/')
-}
-
-jar {
-    manifest = project.manifest {
-        from sharedManifest
-    }
-}
-
-task sourcesJar(type: Jar) {
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives jar
-    archives sourcesJar
+license {
+    header = file('header.txt')
+    newLine = false
+    exclude '**/*.properties'
+    exclude '**/*.js'
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            pom {
-                from components.java
-                artifact sourcesJar
-                name = 'Core Mods'
-                description = 'Core modding framework for use with forge'
-                url = 'https://github.com/MinecraftForge/coremods'
-                scm {
-                    url = 'https://github.com/MinecraftForge/coremods'
-                    connection = 'scm:git:git://github.com/MinecraftForge/coremods.git'
-                    developerConnection = 'scm:git:git@github.com:MinecraftForge/coremods.git'
-                }
-                issueManagement {
-                    system = 'github'
-                    url = 'https://github.com/MinecraftForge/coremods/issues'
-                }
+    publications.register('mavenJava', MavenPublication) {
+        from components.java
 
-                licenses {
-                    license {
-                        name = 'LGPLv2.1'
-                        url = 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt'
-                    }
-                }
+        artifactId = 'coremods'
 
-                developers {
-                    developer {
-                        id = 'cpw'
-                        name = 'cpw'
-                    }
-                }
+        pom {
+            name = 'Core Mods'
+            description = 'Core modding framework for use with forge'
+            url = 'https://github.com/MinecraftForge/CoreMods'
+
+            PomUtils.setGitHubDetails(pom, 'CoreMods')
+
+            license PomUtils.Licenses.LGPLv2_1
+
+            developers {
+                developer PomUtils.Developers.cpw
             }
         }
     }
+
     repositories {
         maven gradleutils.getPublishingForgeMaven()
     }
