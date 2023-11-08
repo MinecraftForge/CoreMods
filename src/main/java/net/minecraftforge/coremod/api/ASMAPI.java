@@ -34,7 +34,7 @@ public class ASMAPI {
     }
 
     public enum MethodType {
-        VIRTUAL, SPECIAL, STATIC, INTERFACE;
+        VIRTUAL, SPECIAL, STATIC, INTERFACE, DYNAMIC;
 
         public int toOpcode() {
             return Opcodes.INVOKEVIRTUAL + this.ordinal();
