@@ -60,14 +60,28 @@ public class ASMAPI {
                 map(f -> f.apply(domain, name)).orElse(name);
     }
 
+    /**
+     * Checks if the given JVM property is {@code true}.
+     *
+     * @param propertyName the property to check
+     * @return true if the property is true
+     */
     public static boolean getSystemPropertyFlag(final String propertyName) {
-        return Boolean.getBoolean("coremod." + propertyName) || getSystemPropertyFlagOld(propertyName);
+        return Boolean.getBoolean(propertyName) || getSystemPropertyFlagOld("coremod." + propertyName);
     }
 
-    /** @deprecated Contains the old, bugged logic that {@link #getSystemPropertyFlag(String)} used to have. */
+    /**
+     * Contains the old, bugged logic that {@link #getSystemPropertyFlag(String)} used to have. This includes:
+     * <ul>
+     *     <li>Checking if {@code coremod.[propertyName]} is {@code true}.</li>
+     *     <li>Checking if the property that {@code coremod.[propertyName]} points to is {@code true}.</li>
+     * </ul>
+     *
+     * @deprecated Use {@link #getSystemPropertyFlag(String)}
+     */
     @Deprecated(forRemoval = true, since = "5.0")
     private static boolean getSystemPropertyFlagOld(final String propertyName) {
-        return Boolean.getBoolean(System.getProperty("coremod." + propertyName, "TRUE"));
+        return Boolean.getBoolean(propertyName) || Boolean.getBoolean(System.getProperty(propertyName, "TRUE"));
     }
 
     public enum InsertMode {
