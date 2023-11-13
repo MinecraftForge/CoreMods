@@ -44,7 +44,7 @@ dependencies {
     
     implementation(libs.modlauncher)
     implementation(libs.log4j.api)
-    implementation(libs.bundles.asm)
+    api(libs.bundles.asm)
     implementation(libs.forgespi)
     implementation(libs.nashorn)
     compileOnly(libs.nulls)
