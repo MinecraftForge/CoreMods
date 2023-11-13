@@ -70,20 +70,6 @@ public class ASMAPI {
         return Boolean.getBoolean(propertyName) || Boolean.getBoolean("coremod." + propertyName);
     }
 
-    /**
-     * Contains the old, bugged logic that {@link #getSystemPropertyFlag(String)} used to have. This includes:
-     * <ul>
-     *     <li>Checking if {@code coremod.[propertyName]} is {@code true}.</li>
-     *     <li>Checking if the property that {@code coremod.[propertyName]} points to is {@code true}.</li>
-     * </ul>
-     *
-     * @deprecated Use {@link #getSystemPropertyFlag(String)}
-     */
-    @Deprecated(forRemoval = true, since = "5.0")
-    private static boolean getSystemPropertyFlagOld(final String propertyName) {
-        return Boolean.getBoolean(propertyName) || Boolean.getBoolean(System.getProperty(propertyName, "TRUE"));
-    }
-
     public enum InsertMode {
         REMOVE_ORIGINAL, INSERT_BEFORE, INSERT_AFTER
     }
