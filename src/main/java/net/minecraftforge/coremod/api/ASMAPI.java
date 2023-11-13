@@ -61,13 +61,13 @@ public class ASMAPI {
     }
 
     /**
-     * Checks if the given JVM property is {@code true}.
+     * Checks if the given JVM property (or if the property prepended with {@code "coremod."}) is {@code true}.
      *
      * @param propertyName the property to check
      * @return true if the property is true
      */
     public static boolean getSystemPropertyFlag(final String propertyName) {
-        return Boolean.getBoolean(propertyName) || getSystemPropertyFlagOld("coremod." + propertyName);
+        return Boolean.getBoolean(propertyName) || Boolean.getBoolean("coremod." + propertyName);
     }
 
     /**
