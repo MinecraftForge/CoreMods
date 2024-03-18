@@ -5,7 +5,7 @@ plugins {
     id 'eclipse'
     id 'java-library'
     id 'maven-publish'
-    id 'net.minecraftforge.gradleutils' version '[2.1.2,)'
+    id 'net.minecraftforge.gradleutils' version '[2.1.2,2.3.0)'
 }
 
 group 'net.minecraftforge'
@@ -42,10 +42,10 @@ dependencies {
     testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.+')
     testRuntimeOnly(project(':coremods-test-jar'))
     
-    implementation(libs.modlauncher)
+    compileOnly(libs.modlauncher)
     implementation(libs.log4j.api)
     api(libs.bundles.asm)
-    implementation(libs.forgespi)
+    compileOnly(libs.forgespi)
     implementation(libs.nashorn)
     compileOnly(libs.nulls)
 }
