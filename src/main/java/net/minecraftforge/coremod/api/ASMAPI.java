@@ -45,14 +45,17 @@ public class ASMAPI {
         return new MethodInsnNode(type.toOpcode(), ownerName, methodName, methodDescriptor, type==MethodType.INTERFACE);
     }
 
+    @Deprecated(forRemoval = true)
     public static String mapMethod(String name) {
         return map(name, INameMappingService.Domain.METHOD);
     }
 
+    @Deprecated(forRemoval = true)
     public static String mapField(String name) {
         return map(name, INameMappingService.Domain.FIELD);
     }
 
+    @Deprecated(forRemoval = true)
     private static String map(String name, INameMappingService.Domain domain) {
         return Optional.ofNullable(Launcher.INSTANCE).
                 map(Launcher::environment).
