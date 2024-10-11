@@ -463,6 +463,18 @@ public class ASMAPI {
     }
 
     /**
+     * Converts an {@link InsnNode} to a string representation.
+     *
+     * @param insn The instruction to convert.
+     * @return The string representation of the instruction.
+     */
+    public static String insnToString(InsnNode insn) {
+        Textifier text = new Textifier();
+        insn.accept(new TraceMethodVisitor(text));
+        return toString(text);
+    }
+
+    /**
      * Gets the LDC constant's class name as a string. Useful for debugging existing LDC instructions.
      *
      * @param insn The LDC instruction.
