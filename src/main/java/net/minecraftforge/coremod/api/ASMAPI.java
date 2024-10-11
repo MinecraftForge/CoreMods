@@ -76,7 +76,7 @@ public class ASMAPI {
      *
      * @deprecated Forge no longer uses SRG names in production
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated(forRemoval = true, since = "5.1")
     public static String mapMethod(String name) {
         return map(name, INameMappingService.Domain.METHOD);
     }
@@ -89,12 +89,12 @@ public class ASMAPI {
      *
      * @deprecated Forge no longer uses SRG names in production
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated(forRemoval = true, since = "5.1")
     public static String mapField(String name) {
         return map(name, INameMappingService.Domain.FIELD);
     }
 
-    @Deprecated(forRemoval = true)
+    @Deprecated(forRemoval = true, since = "5.1")
     private static String map(String name, INameMappingService.Domain domain) {
         return Optional.ofNullable(Launcher.INSTANCE).
                 map(Launcher::environment).
