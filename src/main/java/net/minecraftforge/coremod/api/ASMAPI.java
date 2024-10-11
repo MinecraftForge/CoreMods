@@ -26,8 +26,6 @@ import java.util.Optional;
 
 /**
  * Helper methods for working with ASM.
- *
- * @author cpw
  */
 public class ASMAPI {
     // Why do we have this? At this point, you should just import MethodNode yourself or use a MethodVisitor.
