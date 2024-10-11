@@ -48,12 +48,6 @@ public class ASMAPI {
 
     /**
      * Signifies the method invocation type. Mirrors "INVOKE-" opcodes from ASM.
-     *
-     * @see Opcodes#INVOKEVIRTUAL
-     * @see Opcodes#INVOKEINTERFACE
-     * @see Opcodes#INVOKEDYNAMIC
-     * @see Opcodes#INVOKESPECIAL
-     * @see Opcodes#INVOKESTATIC
      */
     public enum MethodType {
         VIRTUAL, SPECIAL, STATIC, INTERFACE, DYNAMIC;
