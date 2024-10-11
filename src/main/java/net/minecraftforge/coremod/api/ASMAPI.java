@@ -462,6 +462,16 @@ public class ASMAPI {
         return toString(text);
     }
 
+    /**
+     * Gets the LDC constant's class name as a string. Useful for debugging existing LDC instructions.
+     *
+     * @param insn The LDC instruction.
+     * @return The class name of the LDC constant.
+     */
+    public static String ldcInsnClassToString(LdcInsnNode insn) {
+        return insn.cst.getClass().toString();
+    }
+
     private static String toString(Textifier text) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
