@@ -159,22 +159,32 @@ public class ASMAPI {
      * @see AbstractInsnNode
      */
     public enum InsnType {
-        INSN,
-        INT_INSN,
-        VAR_INSN,
-        TYPE_INSN,
-        FIELD_INSN,
-        METHOD_INSN,
-        INVOKE_DYNAMIC_INSN,
-        JUMP_INSN,
-        LABEL,
-        LDC_INSN,
-        IINC_INSN,
-        TABLESWITCH_INSN,
-        LOOKUPSWITCH_INSN,
-        MULTIANEWARRAY_INSN,
-        FRAME,
-        LINE
+        INSN(AbstractInsnNode.INSN),
+        INT_INSN(AbstractInsnNode.INT_INSN),
+        VAR_INSN(AbstractInsnNode.VAR_INSN),
+        TYPE_INSN(AbstractInsnNode.TYPE_INSN),
+        FIELD_INSN(AbstractInsnNode.FIELD_INSN),
+        METHOD_INSN(AbstractInsnNode.METHOD_INSN),
+        INVOKE_DYNAMIC_INSN(AbstractInsnNode.INVOKE_DYNAMIC_INSN),
+        JUMP_INSN(AbstractInsnNode.JUMP_INSN),
+        LABEL(AbstractInsnNode.LABEL),
+        LDC_INSN(AbstractInsnNode.LDC_INSN),
+        IINC_INSN(AbstractInsnNode.IINC_INSN),
+        TABLESWITCH_INSN(AbstractInsnNode.TABLESWITCH_INSN),
+        LOOKUPSWITCH_INSN(AbstractInsnNode.LOOKUPSWITCH_INSN),
+        MULTIANEWARRAY_INSN(AbstractInsnNode.MULTIANEWARRAY_INSN),
+        FRAME(AbstractInsnNode.FRAME),
+        LINE(AbstractInsnNode.LINE);
+
+        private final int type;
+
+        InsnType(int type) {
+            this.type = type;
+        }
+
+        public int get() {
+            return type;
+        }
     }
 
     /**
@@ -226,7 +236,7 @@ public class ASMAPI {
         for (int i = Math.max(0, startIndex); i < method.instructions.size(); i++) {
             AbstractInsnNode ain = method.instructions.get(i);
             if (ain.getOpcode() == opCode) {
-                if (!checkType || type.ordinal() == ain.getType()) {
+                if (!checkType || type.get() == ain.getType()) {
                     return ain;
                 }
             }
@@ -259,7 +269,7 @@ public class ASMAPI {
         for (int i = Math.min(method.instructions.size() - 1, startIndex); i >= 0; i--) {
             AbstractInsnNode ain = method.instructions.get(i);
             if (ain.getOpcode() == opCode) {
-                if (!checkType || type.ordinal() == ain.getType()) {
+                if (!checkType || type.get() == ain.getType()) {
                     return ain;
                 }
             }
