@@ -157,7 +157,7 @@ public class ASMAPI {
      * @return the found instruction node or null if none matched before the given startIndex
      */
     public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, int startIndex) {
-        for (int i = Math.max(method.instructions.size() - 1, startIndex); i >= 0; i--) {
+        for (int i = Math.min(method.instructions.size() - 1, startIndex); i >= 0; i--) {
             AbstractInsnNode ain = method.instructions.get(i);
             if (ain.getOpcode() == opCode) {
                 return ain;
