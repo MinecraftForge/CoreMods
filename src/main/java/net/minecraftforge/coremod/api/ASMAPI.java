@@ -28,7 +28,6 @@ import java.util.Optional;
  * Helper methods for working with ASM.
  */
 public class ASMAPI {
-    // Why do we have this? At this point, you should just import MethodNode yourself or use a MethodVisitor.
     public static MethodNode getMethodNode() {
         return new MethodNode(Opcodes.ASM6);
     }
