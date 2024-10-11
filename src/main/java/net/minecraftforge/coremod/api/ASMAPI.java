@@ -29,8 +29,9 @@ import java.util.function.Function;
  * Helper methods for working with ASM.
  */
 public class ASMAPI {
+    @Deprecated
     public static MethodNode getMethodNode() {
-        return new MethodNode(Opcodes.ASM6);
+        return new MethodNode(Opcodes.ASM9);
     }
 
     // Terribly named method. Should be called "prependMethodCall" or something similar.
