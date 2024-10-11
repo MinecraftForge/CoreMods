@@ -381,7 +381,8 @@ public class ASMAPI {
      */
     public static InsnList listOf(AbstractInsnNode... nodes) {
         InsnList list = new InsnList();
-        for (AbstractInsnNode node : nodes) { list.add(node); }
+        for (AbstractInsnNode node : nodes)
+            list.add(node);
         return list;
     }
 
