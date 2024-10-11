@@ -153,6 +153,31 @@ public class ASMAPI {
     }
 
     /**
+     * The type of instruction. Useful for searching for a specfic instruction, and is preferred over checking the
+     * opcode or other equivalent.
+     *
+     * @see AbstractInsnNode
+     */
+    public enum InsnType {
+        INSN,
+        INT_INSN,
+        VAR_INSN,
+        TYPE_INSN,
+        FIELD_INSN,
+        METHOD_INSN,
+        INVOKE_DYNAMIC_INSN,
+        JUMP_INSN,
+        LABEL,
+        LDC_INSN,
+        IINC_INSN,
+        TABLESWITCH_INSN,
+        LOOKUPSWITCH_INSN,
+        MULTIANEWARRAY_INSN,
+        FRAME,
+        LINE
+    }
+
+    /**
      * Finds the first instruction with matching opcode.
      *
      * @param method the method to search in
@@ -160,7 +185,19 @@ public class ASMAPI {
      * @return the found instruction node or null if none matched
      */
     public static AbstractInsnNode findFirstInstruction(MethodNode method, int opCode) {
-        return findFirstInstructionAfter(method, opCode, 0);
+        return findFirstInstructionAfter(method, opCode, null, 0);
+    }
+
+    /**
+     * Finds the first instruction with matching opcode.
+     *
+     * @param method the method to search in
+     * @param opCode the opcode to search for
+     * @param type   the instruction type to search for
+     * @return the found instruction node or null if none matched
+     */
+    public static AbstractInsnNode findFirstInstruction(MethodNode method, int opCode, InsnType type) {
+        return findFirstInstructionAfter(method, opCode, type, 0);
     }
 
     /**
@@ -172,10 +209,26 @@ public class ASMAPI {
      * @return the found instruction node or null if none matched after the given index
      */
     public static AbstractInsnNode findFirstInstructionAfter(MethodNode method, int opCode, int startIndex) {
+        return findFirstInstructionAfter(method, opCode, null, startIndex);
+    }
+
+    /**
+     * Finds the first instruction with matching opcode after the given start index
+     *
+     * @param method the method to search in
+     * @param opCode the opcode to search for
+     * @param type   the instruction type to search for
+     * @param startIndex the index to start search after (inclusive)
+     * @return the found instruction node or null if none matched after the given index
+     */
+    public static AbstractInsnNode findFirstInstructionAfter(MethodNode method, int opCode, @Nullable InsnType type, int startIndex) {
+        boolean checkType = type != null;
         for (int i = Math.max(0, startIndex); i < method.instructions.size(); i++) {
             AbstractInsnNode ain = method.instructions.get(i);
             if (ain.getOpcode() == opCode) {
-                return ain;
+                if (!checkType || type.ordinal() == ain.getType()) {
+                    return ain;
+                }
             }
         }
         return null;
@@ -190,10 +243,25 @@ public class ASMAPI {
      * @return the found instruction node or null if none matched before the given startIndex
      */
     public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, int startIndex) {
+        return findFirstInstructionBefore(method, opCode, null, startIndex);
+    }
+
+    /**
+     * Finds the first instruction with matching opcode before the given index in reverse search
+     *
+     * @param method the method to search in
+     * @param opCode the opcode to search for
+     * @param startIndex the index at which to start searching (inclusive)
+     * @return the found instruction node or null if none matched before the given startIndex
+     */
+    public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, @Nullable InsnType type, int startIndex) {
+        boolean checkType = type != null;
         for (int i = Math.min(method.instructions.size() - 1, startIndex); i >= 0; i--) {
             AbstractInsnNode ain = method.instructions.get(i);
             if (ain.getOpcode() == opCode) {
-                return ain;
+                if (!checkType || type.ordinal() == ain.getType()) {
+                    return ain;
+                }
             }
         }
         return null;
