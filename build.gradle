@@ -2,6 +2,7 @@ import net.minecraftforge.gradleutils.PomUtils
 
 plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
+    id 'idea'
     id 'eclipse'
     id 'java-library'
     id 'maven-publish'
@@ -99,4 +100,11 @@ allprojects {
         'SAP':       (16..20)
     ]
     ext.VALID_VMS = [ 'Adoptium':  [16] ]
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
 }
