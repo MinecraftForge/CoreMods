@@ -24,15 +24,28 @@ import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Helper methods for working with ASM.
+ */
 public class ASMAPI {
     public static MethodNode getMethodNode() {
         return new MethodNode(Opcodes.ASM6);
     }
 
+    // Terribly named method. Should be called "prependMethodCall" or something similar.
+    /**
+     * Injects a method call to the beginning of the given method.
+     *
+     * @param node       The method to inject the call into
+     * @param methodCall The method call to inject
+     */
     public static void appendMethodCall(MethodNode node, MethodInsnNode methodCall) {
         node.instructions.insertBefore(node.instructions.getFirst(), methodCall);
     }
 
+    /**
+     * Signifies the method invocation type. Mirrors "INVOKE-" opcodes from ASM.
+     */
     public enum MethodType {
         VIRTUAL, SPECIAL, STATIC, INTERFACE, DYNAMIC;
 
@@ -41,18 +54,47 @@ public class ASMAPI {
         }
     }
 
+    /**
+     * Builds a new {@link MethodInsnNode} with the given parameters. The opcode of the method call is determined by the
+     * given {@link MethodType}.
+     *
+     * @param ownerName        The method owner (class)
+     * @param methodName       The method name
+     * @param methodDescriptor The method descriptor
+     * @param type             The type of method call
+     * @return The built method call node
+     */
     public static MethodInsnNode buildMethodCall(final String ownerName, final String methodName, final String methodDescriptor, final MethodType type) {
         return new MethodInsnNode(type.toOpcode(), ownerName, methodName, methodDescriptor, type==MethodType.INTERFACE);
     }
 
+    /**
+     * Maps a method from the given SRG name to the mapped name at deobfuscated runtime.
+     *
+     * @param name The SRG name of the method
+     * @return The mapped name of the method
+     *
+     * @deprecated Forge no longer uses SRG names in production
+     */
+    @Deprecated(forRemoval = true, since = "5.1")
     public static String mapMethod(String name) {
         return map(name, INameMappingService.Domain.METHOD);
     }
 
+    /**
+     * Maps a field from the given SRG name to the mapped name at deobfuscated runtime.
+     *
+     * @param name The SRG name of the field
+     * @return The mapped name of the field
+     *
+     * @deprecated Forge no longer uses SRG names in production
+     */
+    @Deprecated(forRemoval = true, since = "5.1")
     public static String mapField(String name) {
         return map(name, INameMappingService.Domain.FIELD);
     }
 
+    @Deprecated(forRemoval = true, since = "5.1")
     private static String map(String name, INameMappingService.Domain domain) {
         return Optional.ofNullable(Launcher.INSTANCE).
                 map(Launcher::environment).
@@ -70,12 +112,15 @@ public class ASMAPI {
         return Boolean.getBoolean(propertyName) || Boolean.getBoolean("coremod." + propertyName);
     }
 
+    /**
+     * The mode in which the given code should be inserted.
+     */
     public enum InsertMode {
         REMOVE_ORIGINAL, INSERT_BEFORE, INSERT_AFTER
     }
 
     /**
-     * Finds the first instruction with matching opcode
+     * Finds the first instruction with matching opcode.
      *
      * @param method the method to search in
      * @param opCode the opcode to search for
@@ -86,10 +131,10 @@ public class ASMAPI {
     }
 
     /**
-     * Finds the first instruction with matching opcode after the given start index
+     * Finds the first instruction with matching opcode after the given start index.
      *
-     * @param method the method to search in
-     * @param opCode the opcode to search for
+     * @param method     the method to search in
+     * @param opCode     the opcode to search for
      * @param startIndex the index to start search after (inclusive)
      * @return the found instruction node or null if none matched after the given index
      */
@@ -104,10 +149,10 @@ public class ASMAPI {
     }
 
     /**
-     * Finds the first instruction with matching opcode before the given index in reverse search
+     * Finds the first instruction with matching opcode before the given index in reverse search.
      *
-     * @param method the method to search in
-     * @param opCode the opcode to search for
+     * @param method     the method to search in
+     * @param opCode     the opcode to search for
      * @param startIndex the index at which to start searching (inclusive)
      * @return the found instruction node or null if none matched before the given startIndex
      */
@@ -122,12 +167,12 @@ public class ASMAPI {
     }
 
     /**
-     * Finds the first method call in the given method matching the given type, owner, name and descriptor
+     * Finds the first method call in the given method matching the given type, owner, name and descriptor.
      *
-     * @param method the method to search in
-     * @param type the type of method call to search for
-     * @param owner the method call's owner to search for
-     * @param name the method call's name
+     * @param method     the method to search in
+     * @param type       the type of method call to search for
+     * @param owner      the method call's owner to search for
+     * @param name       the method call's name
      * @param descriptor the method call's descriptor
      * @return the found method call node or null if none matched
      */
@@ -136,13 +181,13 @@ public class ASMAPI {
     }
 
     /**
-     * Finds the first method call in the given method matching the given type, owner, name and descriptor
-     * after the instruction given index
+     * Finds the first method call in the given method matching the given type, owner, name and descriptor after the
+     * instruction given index.
      *
-     * @param method the method to search in
-     * @param type the type of method call to search for
-     * @param owner the method call's owner to search for
-     * @param name the method call's name
+     * @param method     the method to search in
+     * @param type       the type of method call to search for
+     * @param owner      the method call's owner to search for
+     * @param name       the method call's name
      * @param descriptor the method call's descriptor
      * @param startIndex the index after which to start searching (inclusive)
      * @return the found method call node, null if none matched after the given index
@@ -164,13 +209,13 @@ public class ASMAPI {
     }
 
     /**
-     * Finds the first method call in the given method matching the given type, owner, name and descriptor
-     * before the given index in reverse search
+     * Finds the first method call in the given method matching the given type, owner, name and descriptor before the
+     * given index in reverse search.
      *
-     * @param method the method to search in
-     * @param type the type of method call to search for
-     * @param owner the method call's owner to search for
-     * @param name the method call's name
+     * @param method     the method to search in
+     * @param type       the type of method call to search for
+     * @param owner      the method call's owner to search for
+     * @param name       the method call's name
      * @param descriptor the method call's descriptor
      * @param startIndex the index at which to start searching (inclusive)
      * @return the found method call node or null if none matched before the given startIndex
@@ -192,15 +237,17 @@ public class ASMAPI {
     }
 
     /**
-     * Inserts/replaces a list after/before first {@link MethodInsnNode} that matches the parameters of these functions in the method provided.
-     * Only the first node matching is targeted, all other matches are ignored.
+     * Inserts/replaces a list after/before first {@link MethodInsnNode} that matches the parameters of these functions
+     * in the method provided. Only the first node matching is targeted, all other matches are ignored.
+     *
      * @param method The method where you want to find the node
-     * @param type The type of the old method node.
-     * @param owner The owner of the old method node.
-     * @param name The name of the old method node. You may want to use {@link #mapMethod(String)} if this is a srg name
-     * @param desc The desc of the old method node.
-     * @param list The list that should be inserted
-     * @param mode How the given code should be inserted
+     * @param type   The type of the old method node.
+     * @param owner  The owner of the old method node.
+     * @param name   The name of the old method node. You may want to use {@link #mapMethod(String)} if this is a srg
+     *               name
+     * @param desc   The desc of the old method node.
+     * @param list   The list that should be inserted
+     * @param mode   How the given code should be inserted
      * @return True if the node was found, false otherwise
      */
     public static boolean insertInsnList(MethodNode method, MethodType type, String owner, String name, String desc, InsnList list, InsertMode mode) {
@@ -226,7 +273,8 @@ public class ASMAPI {
     }
 
     /**
-     * Builds a new {@link InsnList} out of the specified AbstractInsnNodes
+     * Builds a new {@link InsnList} out of the specified {@link AbstractInsnNode}s.
+     *
      * @param nodes The nodes you want to add
      * @return A new list with the nodes
      */
@@ -239,16 +287,15 @@ public class ASMAPI {
 
     /**
      * Rewrites accesses to a specific field in the given class to a method-call.
+     * <p>
+     * The field specified by fieldName must be private and non-static. The method-call the field-access is redirected
+     * to does not take any parameters and returns an object of the same type as the field. If no methodName is passed,
+     * any method matching the described signature will be used as callable method.
      *
-     * The field specified by fieldName must be private and non-static.
-     * The method-call the field-access is redirected to does not take any parameters and returns an object of the
-     * same type as the field.
-     * If no methodName is passed, any method matching the described signature will be used as callable method.
-     *
-     * @param classNode the class to rewrite the accesses in
-     * @param fieldName the field accesses should be redirected to
-     * @param methodName the name of the method to redirect accesses through,
-     *                   or null if any method with matching signature should be applicable
+     * @param classNode  the class to rewrite the accesses in
+     * @param fieldName  the field accesses should be redirected to
+     * @param methodName the name of the method to redirect accesses through, or null if any method with matching
+     *                   signature should be applicable
      */
     public static void redirectFieldToMethod(final ClassNode classNode, final String fieldName, @Nullable final String methodName) {
         MethodNode foundMethod = null;
@@ -308,31 +355,75 @@ public class ASMAPI {
         }
     }
 
+    /**
+     * Loads a JavaScript file by file name. Useful for reusing code across multiple files.
+     *
+     * @param file The file name to load.
+     * @return true if file load was successful.
+     *
+     * @throws ScriptException If the script engine encounters an error, usually due to a syntax error in the script.
+     * @throws IOException     If an I/O error occurs while reading the file, usually due to a corrupt or missing file.
+     */
     public static boolean loadFile(String file) throws ScriptException, IOException {
         return CoreModTracker.loadFileByName(file);
     }
 
+    /**
+     * Loads JSON data from a file by file name.
+     *
+     * @param file The file name to load.
+     * @return The loaded JSON data if successful, or null if not.
+     *
+     * @throws ScriptException If the parsed JSON data is malformed.
+     * @throws IOException     If an I/O error occurs while reading the file, usually due to a corrupt or missing file.
+     */
     @Nullable
     public static Object loadData(String file) throws ScriptException, IOException {
         return CoreModTracker.loadDataByName(file);
     }
 
+    /**
+     * Logs the given message at the given level. The message can contain formatting arguments. Uses a
+     * {@link org.apache.logging.log4j.Logger}.
+     *
+     * @param level   Log level
+     * @param message Message
+     * @param args    Formatting arguments
+     */
     public static void log(String level, String message, Object... args) {
         CoreModTracker.log(level, message, args);
     }
 
+    /**
+     * Converts a {@link ClassNode} to a string representation. Useful for evaluating changes after transformation.
+     *
+     * @param node The class node to convert.
+     * @return The string representation of the class node.
+     */
     public static String classNodeToString(ClassNode node) {
         Textifier text = new Textifier();
         node.accept(new TraceClassVisitor(null, text, null));
         return toString(text);
     }
 
+    /**
+     * Converts a {@link FieldNode} to a string representation. Useful for evaluating changes after transformation.
+     *
+     * @param node The field node to convert.
+     * @return The string representation of the field node.
+     */
     public static String fieldNodeToString(FieldNode node) {
         Textifier text = new Textifier();
         node.accept(new TraceClassVisitor(null, text, null));
         return toString(text);
     }
 
+    /**
+     * Converts a {@link MethodNode} to a string representation. Useful for evaluating changes after transformation.
+     *
+     * @param node The method node to convert.
+     * @return The string representation of the method node.
+     */
     public static String methodNodeToString(MethodNode node) {
         Textifier text = new Textifier();
         node.accept(new TraceMethodVisitor(text));
