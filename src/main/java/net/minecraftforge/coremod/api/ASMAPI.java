@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Helper methods for working with ASM.
@@ -66,6 +67,37 @@ public class ASMAPI {
      */
     public static MethodInsnNode buildMethodCall(final String ownerName, final String methodName, final String methodDescriptor, final MethodType type) {
         return new MethodInsnNode(type.toOpcode(), ownerName, methodName, methodDescriptor, type==MethodType.INTERFACE);
+    }
+
+    /**
+     * Signifies the type of number constant for a {@link LdcNumberType}.
+     */
+    public enum LdcNumberType {
+        INTEGER(Number::intValue),
+        FLOAT(Number::floatValue),
+        LONG(Number::longValue),
+        DOUBLE(Number::doubleValue);
+
+        private final Function<Number, Object> mapper;
+
+        LdcNumberType(Function<Number, Object> mapper) {
+            this.mapper = mapper;
+        }
+
+        public Object map(Number number) {
+            return mapper.apply(number);
+        }
+    }
+
+    /**
+     * Builds a new {@link LdcInsnNode} with the given number value and type.
+     *
+     * @param value The number value
+     * @param type  The type of the number
+     * @return The built LDC node
+     */
+    public static LdcInsnNode buildNumberLdcInsnNode(final Number value, final LdcNumberType type) {
+        return new LdcInsnNode(type.map(value));
     }
 
     /**
