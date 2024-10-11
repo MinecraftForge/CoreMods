@@ -66,7 +66,7 @@ public class ASMAPI {
      * @return The built method call node
      */
     public static MethodInsnNode buildMethodCall(final String ownerName, final String methodName, final String methodDescriptor, final MethodType type) {
-        return new MethodInsnNode(type.toOpcode(), ownerName, methodName, methodDescriptor, type==MethodType.INTERFACE);
+        return new MethodInsnNode(type.toOpcode(), ownerName, methodName, methodDescriptor, type == MethodType.INTERFACE);
     }
 
     /**
@@ -129,9 +129,9 @@ public class ASMAPI {
     @Deprecated(forRemoval = true, since = "5.1")
     private static String map(String name, INameMappingService.Domain domain) {
         return Optional.ofNullable(Launcher.INSTANCE).
-                map(Launcher::environment).
-                flatMap(env->env.findNameMapping("srg")).
-                map(f -> f.apply(domain, name)).orElse(name);
+                   map(Launcher::environment).
+                   flatMap(env -> env.findNameMapping("srg")).
+                   map(f -> f.apply(domain, name)).orElse(name);
     }
 
     /**
@@ -312,8 +312,7 @@ public class ASMAPI {
      */
     public static InsnList listOf(AbstractInsnNode... nodes) {
         InsnList list = new InsnList();
-        for (AbstractInsnNode node : nodes)
-            list.add(node);
+        for (AbstractInsnNode node : nodes) { list.add(node); }
         return list;
     }
 
@@ -337,19 +336,19 @@ public class ASMAPI {
                 if (foundField == null) {
                     foundField = fieldNode;
                 } else {
-                    throw new IllegalStateException("Found multiple fields with name "+fieldName);
+                    throw new IllegalStateException("Found multiple fields with name " + fieldName);
                 }
             }
         }
 
         if (foundField == null) {
-            throw new IllegalStateException("No field with name "+fieldName+" found");
+            throw new IllegalStateException("No field with name " + fieldName + " found");
         }
         if (!Modifier.isPrivate(foundField.access) || Modifier.isStatic(foundField.access)) {
-            throw new IllegalStateException("Field "+fieldName+" is not private and an instance field");
+            throw new IllegalStateException("Field " + fieldName + " is not private and an instance field");
         }
 
-        final String methodSignature = "()"+foundField.desc;
+        final String methodSignature = "()" + foundField.desc;
 
         for (MethodNode methodNode : classNode.methods) {
             if (Objects.equals(methodNode.desc, methodSignature)) {
@@ -358,13 +357,13 @@ public class ASMAPI {
                 } else if (foundMethod == null && methodName == null) {
                     foundMethod = methodNode;
                 } else if (foundMethod != null && (methodName == null || Objects.equals(methodNode.name, methodName))) {
-                    throw new IllegalStateException("Found duplicate method with signature "+methodSignature);
+                    throw new IllegalStateException("Found duplicate method with signature " + methodSignature);
                 }
             }
         }
 
         if (foundMethod == null) {
-            throw new IllegalStateException("Unable to find method "+methodSignature);
+            throw new IllegalStateException("Unable to find method " + methodSignature);
         }
 
         for (MethodNode methodNode : classNode.methods) {
