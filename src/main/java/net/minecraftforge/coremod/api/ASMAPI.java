@@ -29,7 +29,6 @@ import java.util.function.Function;
  * Helper methods for working with ASM.
  */
 public class ASMAPI {
-    @Deprecated
     public static MethodNode getMethodNode() {
         return new MethodNode(Opcodes.ASM9);
     }
