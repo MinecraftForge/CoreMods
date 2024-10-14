@@ -30,7 +30,7 @@ import java.util.function.Function;
  */
 public class ASMAPI {
     public static MethodNode getMethodNode() {
-        return new MethodNode(Opcodes.ASM6);
+        return new MethodNode(Opcodes.ASM9);
     }
 
     // Terribly named method. Should be called "prependMethodCall" or something similar.
@@ -48,10 +48,20 @@ public class ASMAPI {
      * Signifies the method invocation type. Mirrors "INVOKE-" opcodes from ASM.
      */
     public enum MethodType {
-        VIRTUAL, SPECIAL, STATIC, INTERFACE, DYNAMIC;
+        VIRTUAL(Opcodes.INVOKEVIRTUAL),
+        SPECIAL(Opcodes.INVOKESPECIAL),
+        STATIC(Opcodes.INVOKESTATIC),
+        INTERFACE(Opcodes.INVOKEINTERFACE),
+        DYNAMIC(Opcodes.INVOKEDYNAMIC);
+
+        private final int opcode;
+
+        MethodType(int opcode) {
+            this.opcode = opcode;
+        }
 
         public int toOpcode() {
-            return Opcodes.INVOKEVIRTUAL + this.ordinal();
+            return this.opcode;
         }
     }
 
@@ -66,7 +76,7 @@ public class ASMAPI {
      * @return The built method call node
      */
     public static MethodInsnNode buildMethodCall(final String ownerName, final String methodName, final String methodDescriptor, final MethodType type) {
-        return new MethodInsnNode(type.toOpcode(), ownerName, methodName, methodDescriptor, type==MethodType.INTERFACE);
+        return new MethodInsnNode(type.toOpcode(), ownerName, methodName, methodDescriptor, type == MethodType.INTERFACE);
     }
 
     /**
@@ -129,9 +139,9 @@ public class ASMAPI {
     @Deprecated(forRemoval = true, since = "5.1")
     private static String map(String name, INameMappingService.Domain domain) {
         return Optional.ofNullable(Launcher.INSTANCE).
-                map(Launcher::environment).
-                flatMap(env->env.findNameMapping("srg")).
-                map(f -> f.apply(domain, name)).orElse(name);
+                   map(Launcher::environment).
+                   flatMap(env -> env.findNameMapping("srg")).
+                   map(f -> f.apply(domain, name)).orElse(name);
     }
 
     /**
@@ -152,6 +162,41 @@ public class ASMAPI {
     }
 
     /**
+     * The type of instruction. Useful for searching for a specfic instruction, and is preferred over checking the
+     * opcode or other equivalent.
+     *
+     * @see AbstractInsnNode
+     */
+    public enum InsnType {
+        INSN(AbstractInsnNode.INSN),
+        INT_INSN(AbstractInsnNode.INT_INSN),
+        VAR_INSN(AbstractInsnNode.VAR_INSN),
+        TYPE_INSN(AbstractInsnNode.TYPE_INSN),
+        FIELD_INSN(AbstractInsnNode.FIELD_INSN),
+        METHOD_INSN(AbstractInsnNode.METHOD_INSN),
+        INVOKE_DYNAMIC_INSN(AbstractInsnNode.INVOKE_DYNAMIC_INSN),
+        JUMP_INSN(AbstractInsnNode.JUMP_INSN),
+        LABEL(AbstractInsnNode.LABEL),
+        LDC_INSN(AbstractInsnNode.LDC_INSN),
+        IINC_INSN(AbstractInsnNode.IINC_INSN),
+        TABLESWITCH_INSN(AbstractInsnNode.TABLESWITCH_INSN),
+        LOOKUPSWITCH_INSN(AbstractInsnNode.LOOKUPSWITCH_INSN),
+        MULTIANEWARRAY_INSN(AbstractInsnNode.MULTIANEWARRAY_INSN),
+        FRAME(AbstractInsnNode.FRAME),
+        LINE(AbstractInsnNode.LINE);
+
+        private final int type;
+
+        InsnType(int type) {
+            this.type = type;
+        }
+
+        public int get() {
+            return type;
+        }
+    }
+
+    /**
      * Finds the first instruction with matching opcode.
      *
      * @param method the method to search in
@@ -159,7 +204,19 @@ public class ASMAPI {
      * @return the found instruction node or null if none matched
      */
     public static AbstractInsnNode findFirstInstruction(MethodNode method, int opCode) {
-        return findFirstInstructionAfter(method, opCode, 0);
+        return findFirstInstructionAfter(method, opCode, null, 0);
+    }
+
+    /**
+     * Finds the first instruction with matching opcode.
+     *
+     * @param method the method to search in
+     * @param opCode the opcode to search for
+     * @param type   the instruction type to search for
+     * @return the found instruction node or null if none matched
+     */
+    public static AbstractInsnNode findFirstInstruction(MethodNode method, int opCode, InsnType type) {
+        return findFirstInstructionAfter(method, opCode, type, 0);
     }
 
     /**
@@ -171,10 +228,26 @@ public class ASMAPI {
      * @return the found instruction node or null if none matched after the given index
      */
     public static AbstractInsnNode findFirstInstructionAfter(MethodNode method, int opCode, int startIndex) {
+        return findFirstInstructionAfter(method, opCode, null, startIndex);
+    }
+
+    /**
+     * Finds the first instruction with matching opcode after the given start index
+     *
+     * @param method the method to search in
+     * @param opCode the opcode to search for
+     * @param type   the instruction type to search for
+     * @param startIndex the index to start search after (inclusive)
+     * @return the found instruction node or null if none matched after the given index
+     */
+    public static AbstractInsnNode findFirstInstructionAfter(MethodNode method, int opCode, @Nullable InsnType type, int startIndex) {
+        boolean checkType = type != null;
         for (int i = Math.max(0, startIndex); i < method.instructions.size(); i++) {
             AbstractInsnNode ain = method.instructions.get(i);
             if (ain.getOpcode() == opCode) {
-                return ain;
+                if (!checkType || type.get() == ain.getType()) {
+                    return ain;
+                }
             }
         }
         return null;
@@ -189,10 +262,25 @@ public class ASMAPI {
      * @return the found instruction node or null if none matched before the given startIndex
      */
     public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, int startIndex) {
+        return findFirstInstructionBefore(method, opCode, null, startIndex);
+    }
+
+    /**
+     * Finds the first instruction with matching opcode before the given index in reverse search
+     *
+     * @param method the method to search in
+     * @param opCode the opcode to search for
+     * @param startIndex the index at which to start searching (inclusive)
+     * @return the found instruction node or null if none matched before the given startIndex
+     */
+    public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, @Nullable InsnType type, int startIndex) {
+        boolean checkType = type != null;
         for (int i = Math.min(method.instructions.size() - 1, startIndex); i >= 0; i--) {
             AbstractInsnNode ain = method.instructions.get(i);
             if (ain.getOpcode() == opCode) {
-                return ain;
+                if (!checkType || type.get() == ain.getType()) {
+                    return ain;
+                }
             }
         }
         return null;
@@ -337,19 +425,19 @@ public class ASMAPI {
                 if (foundField == null) {
                     foundField = fieldNode;
                 } else {
-                    throw new IllegalStateException("Found multiple fields with name "+fieldName);
+                    throw new IllegalStateException("Found multiple fields with name " + fieldName);
                 }
             }
         }
 
         if (foundField == null) {
-            throw new IllegalStateException("No field with name "+fieldName+" found");
+            throw new IllegalStateException("No field with name " + fieldName + " found");
         }
         if (!Modifier.isPrivate(foundField.access) || Modifier.isStatic(foundField.access)) {
-            throw new IllegalStateException("Field "+fieldName+" is not private and an instance field");
+            throw new IllegalStateException("Field " + fieldName + " is not private and an instance field");
         }
 
-        final String methodSignature = "()"+foundField.desc;
+        final String methodSignature = "()" + foundField.desc;
 
         for (MethodNode methodNode : classNode.methods) {
             if (Objects.equals(methodNode.desc, methodSignature)) {
@@ -358,13 +446,13 @@ public class ASMAPI {
                 } else if (foundMethod == null && methodName == null) {
                     foundMethod = methodNode;
                 } else if (foundMethod != null && (methodName == null || Objects.equals(methodNode.name, methodName))) {
-                    throw new IllegalStateException("Found duplicate method with signature "+methodSignature);
+                    throw new IllegalStateException("Found duplicate method with signature " + methodSignature);
                 }
             }
         }
 
         if (foundMethod == null) {
-            throw new IllegalStateException("Unable to find method "+methodSignature);
+            throw new IllegalStateException("Unable to find method " + methodSignature);
         }
 
         for (MethodNode methodNode : classNode.methods) {
@@ -459,6 +547,31 @@ public class ASMAPI {
     public static String methodNodeToString(MethodNode node) {
         Textifier text = new Textifier();
         node.accept(new TraceMethodVisitor(text));
+        return toString(text);
+    }
+
+    /**
+     * Converts an {@link InsnNode} to a string representation.
+     *
+     * @param insn The instruction to convert.
+     * @return The string representation of the instruction.
+     */
+    public static String insnToString(InsnNode insn) {
+        Textifier text = new Textifier();
+        insn.accept(new TraceMethodVisitor(text));
+        return toString(text);
+    }
+
+    /**
+     * Converts a {@link InsnList} to a string representation, displaying each instruction in the list similar to
+     * {@link #insnToString(InsnNode)}.
+     *
+     * @param list The list to convert.
+     * @return     The string
+     */
+    public static String insnListToString(InsnList list) {
+        Textifier text = new Textifier();
+        list.accept(new TraceMethodVisitor(text));
         return toString(text);
     }
 
