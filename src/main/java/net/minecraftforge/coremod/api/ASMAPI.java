@@ -92,9 +92,9 @@ public class ASMAPI {
     }
 
     /**
-     * Signifies the type of number constant for a {@link LdcNumberType}.
+     * Signifies the type of number constant for a {@link NumberType}.
      */
-    public enum LdcNumberType {
+    public enum NumberType {
         INTEGER(Number::intValue),
         FLOAT(Number::floatValue),
         LONG(Number::longValue),
@@ -102,7 +102,7 @@ public class ASMAPI {
 
         private final Function<Number, Object> mapper;
 
-        LdcNumberType(Function<Number, Object> mapper) {
+        NumberType(Function<Number, Object> mapper) {
             this.mapper = mapper;
         }
 
@@ -112,14 +112,29 @@ public class ASMAPI {
     }
 
     /**
-     * Builds a new {@link LdcInsnNode} with the given number value and type.
+     * Casts a given number to a given specific {@link NumberType}. This helps elliviate the problems that comes with JavaScript's
+     * ambiguous number system.
+     * <p>
+     * The result is returned as an {@link Object} so it can be used as a value in various instructions that require
+     * values.
+     *
+     * @param value The number to cast
+     * @param type  The type of number to cast to
+     * @return The casted number
+     */
+    public static Object castNumber(final Number value, final NumberType type) {
+        return type.map(value);
+    }
+
+    /**
+     * Builds a new {@link LdcInsnNode} with the given number value and {@link NumberType}.
      *
      * @param value The number value
      * @param type  The type of the number
      * @return The built LDC node
      */
-    public static LdcInsnNode buildNumberLdcInsnNode(final Number value, final LdcNumberType type) {
-        return new LdcInsnNode(type.map(value));
+    public static LdcInsnNode buildNumberLdcInsnNode(final Number value, final NumberType type) {
+        return new LdcInsnNode(castNumber(value, type));
     }
 
     /**
