@@ -388,14 +388,14 @@ public class ASMAPI {
      * in the method provided. Only the first node matching is targeted, all other matches are ignored.
      *
      * @param method The method where you want to find the node
-     * @param type   The type of the old method node.
-     * @param owner  The owner of the old method node.
-     * @param name   The name of the old method node. You may want to use {@link #mapMethod(String)} if this is a srg
-     *               name
-     * @param desc   The desc of the old method node.
+     * @param type   The type of the old method node
+     * @param owner  The owner of the old method node
+     * @param name   The name of the old method node (you may want to use {@link #mapMethod(String)} if this is a srg
+     *               name)
+     * @param desc   The desc of the old method node
      * @param list   The list that should be inserted
      * @param mode   How the given code should be inserted
-     * @return True if the node was found, false otherwise
+     * @return True if the node was found and the list was inserted, false otherwise
      */
     public static boolean insertInsnList(MethodNode method, MethodType type, String owner, String name, String desc, InsnList list, InsertMode mode) {
         Iterator<AbstractInsnNode> nodeIterator = method.instructions.iterator();
@@ -417,6 +417,28 @@ public class ASMAPI {
             }
         }
         return false;
+    }
+
+    /**
+     * Inserts/replaces a list after/before the given instruction.
+     *
+     * @param method The method where you want to insert the list
+     * @param list   The list that should be inserted
+     * @param mode   How the given code should be inserted
+     * @return True if the list was inserted, false otherwise
+     */
+    public static boolean insertInsnList(MethodNode method, AbstractInsnNode insn, InsnList list, InsertMode mode) {
+        if (!method.instructions.contains(insn)) return false;
+
+        if (mode == InsertMode.INSERT_BEFORE)
+            method.instructions.insertBefore(insn, list);
+        else
+            method.instructions.insert(insn, list);
+
+        if (mode == InsertMode.REMOVE_ORIGINAL)
+            method.instructions.remove(insn);
+
+        return true;
     }
 
     /**
