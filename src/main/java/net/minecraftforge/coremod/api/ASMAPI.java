@@ -33,15 +33,27 @@ public class ASMAPI {
         return new MethodNode(Opcodes.ASM9);
     }
 
-    // Terribly named method. Should be called "prependMethodCall" or something similar.
     /**
      * Injects a method call to the beginning of the given method.
      *
      * @param node       The method to inject the call into
      * @param methodCall The method call to inject
      */
-    public static void appendMethodCall(MethodNode node, MethodInsnNode methodCall) {
+    public static void injectMethodCall(MethodNode node, MethodInsnNode methodCall) {
         node.instructions.insertBefore(node.instructions.getFirst(), methodCall);
+    }
+
+    /**
+     * Injects a method call to the beginning of the given method.
+     *
+     * @param node       The method to inject the call into
+     * @param methodCall The method call to inject
+     *
+     * @deprecated Renamed to {@link #injectMethodCall(MethodNode, MethodInsnNode)}
+     */
+    @Deprecated(forRemoval = true, since = "5.1")
+    public static void appendMethodCall(MethodNode node, MethodInsnNode methodCall) {
+        injectMethodCall(node, methodCall);
     }
 
     /**
