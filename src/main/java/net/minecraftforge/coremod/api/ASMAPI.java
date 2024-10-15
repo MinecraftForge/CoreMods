@@ -556,7 +556,7 @@ public class ASMAPI {
      * @param insn The instruction to convert.
      * @return The string representation of the instruction.
      */
-    public static String insnToString(InsnNode insn) {
+    public static String insnToString(AbstractInsnNode insn) {
         Textifier text = new Textifier();
         insn.accept(new TraceMethodVisitor(text));
         return toString(text);
@@ -564,7 +564,7 @@ public class ASMAPI {
 
     /**
      * Converts a {@link InsnList} to a string representation, displaying each instruction in the list similar to
-     * {@link #insnToString(InsnNode)}.
+     * {@link #insnToString(AbstractInsnNode)}.
      *
      * @param list The list to convert.
      * @return     The string
