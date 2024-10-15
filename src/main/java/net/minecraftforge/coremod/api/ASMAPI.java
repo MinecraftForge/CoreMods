@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Modifier;
-import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Optional;
@@ -398,25 +397,10 @@ public class ASMAPI {
      * @return True if the node was found and the list was inserted, false otherwise
      */
     public static boolean insertInsnList(MethodNode method, MethodType type, String owner, String name, String desc, InsnList list, InsertMode mode) {
-        Iterator<AbstractInsnNode> nodeIterator = method.instructions.iterator();
-        int opcode = type.toOpcode();
-        while (nodeIterator.hasNext()) {
-            AbstractInsnNode next = nodeIterator.next();
-            if (next.getOpcode() == opcode) {
-                MethodInsnNode castedNode = (MethodInsnNode) next;
-                if (castedNode.owner.equals(owner) && castedNode.name.equals(name) && castedNode.desc.equals(desc)) {
-                    if (mode == InsertMode.INSERT_BEFORE)
-                        method.instructions.insertBefore(next, list);
-                    else
-                        method.instructions.insert(next, list);
+        var insn = findFirstMethodCall(method, type, owner, name, desc);
+        if (insn == null) return false;
 
-                    if (mode == InsertMode.REMOVE_ORIGINAL)
-                        nodeIterator.remove();
-                    return true;
-                }
-            }
-        }
-        return false;
+        return insertInsnList(method, insn, list, mode);
     }
 
     /**
