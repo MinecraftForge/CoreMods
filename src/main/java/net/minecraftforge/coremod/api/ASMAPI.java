@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Modifier;
-import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,15 +32,27 @@ public class ASMAPI {
         return new MethodNode(Opcodes.ASM9);
     }
 
-    // Terribly named method. Should be called "prependMethodCall" or something similar.
     /**
      * Injects a method call to the beginning of the given method.
      *
      * @param node       The method to inject the call into
      * @param methodCall The method call to inject
      */
-    public static void appendMethodCall(MethodNode node, MethodInsnNode methodCall) {
+    public static void injectMethodCall(MethodNode node, MethodInsnNode methodCall) {
         node.instructions.insertBefore(node.instructions.getFirst(), methodCall);
+    }
+
+    /**
+     * Injects a method call to the beginning of the given method.
+     *
+     * @param node       The method to inject the call into
+     * @param methodCall The method call to inject
+     *
+     * @deprecated Renamed to {@link #injectMethodCall(MethodNode, MethodInsnNode)}
+     */
+    @Deprecated(forRemoval = true, since = "5.1")
+    public static void appendMethodCall(MethodNode node, MethodInsnNode methodCall) {
+        injectMethodCall(node, methodCall);
     }
 
     /**
@@ -80,9 +91,9 @@ public class ASMAPI {
     }
 
     /**
-     * Signifies the type of number constant for a {@link LdcNumberType}.
+     * Signifies the type of number constant for a {@link NumberType}.
      */
-    public enum LdcNumberType {
+    public enum NumberType {
         INTEGER(Number::intValue),
         FLOAT(Number::floatValue),
         LONG(Number::longValue),
@@ -90,7 +101,7 @@ public class ASMAPI {
 
         private final Function<Number, Object> mapper;
 
-        LdcNumberType(Function<Number, Object> mapper) {
+        NumberType(Function<Number, Object> mapper) {
             this.mapper = mapper;
         }
 
@@ -100,14 +111,29 @@ public class ASMAPI {
     }
 
     /**
-     * Builds a new {@link LdcInsnNode} with the given number value and type.
+     * Casts a given number to a given specific {@link NumberType}. This helps elliviate the problems that comes with JavaScript's
+     * ambiguous number system.
+     * <p>
+     * The result is returned as an {@link Object} so it can be used as a value in various instructions that require
+     * values.
+     *
+     * @param value The number to cast
+     * @param type  The type of number to cast to
+     * @return The casted number
+     */
+    public static Object castNumber(final Number value, final NumberType type) {
+        return type.map(value);
+    }
+
+    /**
+     * Builds a new {@link LdcInsnNode} with the given number value and {@link NumberType}.
      *
      * @param value The number value
      * @param type  The type of the number
      * @return The built LDC node
      */
-    public static LdcInsnNode buildNumberLdcInsnNode(final Number value, final LdcNumberType type) {
-        return new LdcInsnNode(type.map(value));
+    public static LdcInsnNode buildNumberLdcInsnNode(final Number value, final NumberType type) {
+        return new LdcInsnNode(castNumber(value, type));
     }
 
     /**
@@ -361,35 +387,42 @@ public class ASMAPI {
      * in the method provided. Only the first node matching is targeted, all other matches are ignored.
      *
      * @param method The method where you want to find the node
-     * @param type   The type of the old method node.
-     * @param owner  The owner of the old method node.
-     * @param name   The name of the old method node. You may want to use {@link #mapMethod(String)} if this is a srg
-     *               name
-     * @param desc   The desc of the old method node.
+     * @param type   The type of the old method node
+     * @param owner  The owner of the old method node
+     * @param name   The name of the old method node (you may want to use {@link #mapMethod(String)} if this is a srg
+     *               name)
+     * @param desc   The desc of the old method node
      * @param list   The list that should be inserted
      * @param mode   How the given code should be inserted
-     * @return True if the node was found, false otherwise
+     * @return True if the node was found and the list was inserted, false otherwise
      */
     public static boolean insertInsnList(MethodNode method, MethodType type, String owner, String name, String desc, InsnList list, InsertMode mode) {
-        Iterator<AbstractInsnNode> nodeIterator = method.instructions.iterator();
-        int opcode = type.toOpcode();
-        while (nodeIterator.hasNext()) {
-            AbstractInsnNode next = nodeIterator.next();
-            if (next.getOpcode() == opcode) {
-                MethodInsnNode castedNode = (MethodInsnNode) next;
-                if (castedNode.owner.equals(owner) && castedNode.name.equals(name) && castedNode.desc.equals(desc)) {
-                    if (mode == InsertMode.INSERT_BEFORE)
-                        method.instructions.insertBefore(next, list);
-                    else
-                        method.instructions.insert(next, list);
+        var insn = findFirstMethodCall(method, type, owner, name, desc);
+        if (insn == null) return false;
 
-                    if (mode == InsertMode.REMOVE_ORIGINAL)
-                        nodeIterator.remove();
-                    return true;
-                }
-            }
-        }
-        return false;
+        return insertInsnList(method, insn, list, mode);
+    }
+
+    /**
+     * Inserts/replaces a list after/before the given instruction.
+     *
+     * @param method The method where you want to insert the list
+     * @param list   The list that should be inserted
+     * @param mode   How the given code should be inserted
+     * @return True if the list was inserted, false otherwise
+     */
+    public static boolean insertInsnList(MethodNode method, AbstractInsnNode insn, InsnList list, InsertMode mode) {
+        if (!method.instructions.contains(insn)) return false;
+
+        if (mode == InsertMode.INSERT_BEFORE)
+            method.instructions.insertBefore(insn, list);
+        else
+            method.instructions.insert(insn, list);
+
+        if (mode == InsertMode.REMOVE_ORIGINAL)
+            method.instructions.remove(insn);
+
+        return true;
     }
 
     /**
