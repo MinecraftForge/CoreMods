@@ -288,6 +288,11 @@ public class ASMAPI {
      * @param opCode     the opcode to search for
      * @param startIndex the index at which to start searching (inclusive)
      * @return the found instruction node or null if none matched before the given startIndex
+     *
+     * @apiNote In Minecraft 1.21.1 and earlier, this method contains broken logic that ignores the {@code startIndex}
+     *     parameter and searches for the requested instruction at the end of the method. This behavior is preserved to
+     *     not disrupt older coremods. If you are on one of these older versions and need to use the fixed logic, please
+     *     use {@link #findFirstInstructionBefore(MethodNode, int, int, boolean)}.
      */
     public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, int startIndex) {
         return findFirstInstructionBefore(method, opCode, null, startIndex);
@@ -314,6 +319,11 @@ public class ASMAPI {
      * @param opCode     the opcode to search for
      * @param startIndex the index at which to start searching (inclusive)
      * @return the found instruction node or null if none matched before the given startIndex
+     *
+     * @apiNote In Minecraft 1.21.1 and earlier, this method contains broken logic that ignores the {@code startIndex}
+     *     parameter and searches for the requested instruction at the end of the method. This behavior is preserved to
+     *     not disrupt older coremods. If you are on one of these older versions and need to use the fixed logic, please
+     *     use {@link #findFirstInstructionBefore(MethodNode, int, InsnType, int, boolean)}.
      */
     public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, @Nullable InsnType type, int startIndex) {
         return findFirstInstructionBefore(method, opCode, type, startIndex, !CoreModEngine.DO_NOT_FIX_INSNBEFORE);

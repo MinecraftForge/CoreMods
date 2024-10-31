@@ -53,6 +53,8 @@ public class CoreModEngine {
             "org.objectweb.asm.TypePath","org.objectweb.asm.TypeReference"
     ));
 
+    // this is enabled by FML in Minecraft 1.21.1 and earlier, but disabled in 1.21.3 and later
+    // see ASMAPI.findFirstInstructionBefore for more details
     public static final boolean DO_NOT_FIX_INSNBEFORE;
 
     static {
