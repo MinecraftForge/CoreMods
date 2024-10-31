@@ -33,7 +33,7 @@ public class ASMAPI {
 
     static {
         var blackboardVar = Launcher.INSTANCE.blackboard().get(TypesafeMap.Key.getOrCreate(Launcher.INSTANCE.blackboard(), "fml.coremods.use_old_findFirstInstructionBefore", Boolean.class));
-        DO_NOT_FIX_INSNBEFORE = blackboardVar.isEmpty() || blackboardVar.get();
+        DO_NOT_FIX_INSNBEFORE = blackboardVar.isPresent() && blackboardVar.get();
     }
 
     public static MethodNode getMethodNode() {
