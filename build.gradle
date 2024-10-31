@@ -47,7 +47,6 @@ dependencies {
     implementation(libs.log4j.api)
     api(libs.bundles.asm)
     compileOnly(libs.forgespi)
-    compileOnly(libs.fmlloader)
     implementation(libs.nashorn)
     compileOnly(libs.nulls)
 }

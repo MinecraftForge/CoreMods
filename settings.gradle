@@ -30,9 +30,8 @@ dependencyResolutionManagement {
             library('gson', 'com.google.code.gson:gson:2.10.1')
             library('jopt-simple', 'net.sf.jopt-simple:jopt-simple:5.0.4')
             */
-
-            library('fmlloader', 'net.minecraftforge:fmlloader:1.17.1-37.0.0') // Needed to access current MC version
-            library('forgespi', 'net.minecraftforge:forgespi:7.1.0')
+            
+            library('forgespi', 'net.minecraftforge:forgespi:7.1.0') 
             library('modlauncher', 'net.minecraftforge:modlauncher:10.1.1') // Needs securemodules
             library('nulls', 'org.jetbrains:annotations:23.0.0')
             library('nashorn', 'org.openjdk.nashorn:nashorn-core:15.3') // Needed by coremods, because the JRE no longer ships JS
