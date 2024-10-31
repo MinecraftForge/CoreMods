@@ -1,17 +1,17 @@
 /**
  * org.objectweb.asm.tree.ClassNode
  */
-declare interface ClassNode {}
+export type ClassNode = any;
 
 /**
  * org.objectweb.asm.tree.MethodNode
  */
-declare interface MethodNode {}
+export type MethodNode = any;
 
 /**
  * org.objectweb.asm.tree.FieldNode
  */
-declare interface FieldNode {}
+export type FieldNode = any;
 
 
 export interface ClassTarget {
@@ -108,8 +108,5 @@ export interface CoreModInitializer {
 }
 
 declare global {
-    /**
-     * The entry point to the script.
-     */
     function initializeCoreMod(): CoreModInitializer;
 }
