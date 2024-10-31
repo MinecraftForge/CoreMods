@@ -6,8 +6,8 @@ package net.minecraftforge.coremod.api;
 
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.INameMappingService;
+import cpw.mods.modlauncher.api.TypesafeMap;
 import net.minecraftforge.coremod.CoreModTracker;
-import net.minecraftforge.fml.loading.FMLLoader;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
@@ -32,12 +32,8 @@ public class ASMAPI {
     private static final boolean INSNBEFORE_DEFAULT_FIXLOGIC;
 
     static {
-        var version = FMLLoader.versionInfo().mcVersion().split("\\.");
-        int major = Integer.parseInt(version[1]);
-        int minor = version.length > 2 ? Integer.parseInt(version[2]) : 0; // i.e. 1.22 (the 0 is implied)
-
-        // fix findFirstInstructionBefore on 1.21.3 and above by default
-        INSNBEFORE_DEFAULT_FIXLOGIC = major > 21 || (major == 21 && minor >= 3);
+        var blackboardVar = Launcher.INSTANCE.blackboard().get(TypesafeMap.Key.getOrCreate(Launcher.INSTANCE.blackboard(), "fml.coremods.use_old_findFirstInstructionBefore", Boolean.class));
+        INSNBEFORE_DEFAULT_FIXLOGIC = blackboardVar.isEmpty() || !blackboardVar.get().booleanValue();
     }
 
     public static MethodNode getMethodNode() {
