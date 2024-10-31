@@ -51,7 +51,7 @@ public class ASMAPI {
      *
      * @deprecated Renamed to {@link #injectMethodCall(MethodNode, MethodInsnNode)}
      */
-    @Deprecated(forRemoval = true, since = "5.1")
+    @Deprecated(forRemoval = true, since = "6.0")
     public static void appendMethodCall(MethodNode node, MethodInsnNode methodCall) {
         injectMethodCall(node, methodCall);
     }
