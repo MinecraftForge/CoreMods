@@ -7,6 +7,7 @@ package net.minecraftforge.coremod.api;
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.INameMappingService;
 import cpw.mods.modlauncher.api.TypesafeMap;
+import net.minecraftforge.coremod.CoreModEngine;
 import net.minecraftforge.coremod.CoreModTracker;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
@@ -29,13 +30,6 @@ import java.util.function.Function;
  * Helper methods for working with ASM.
  */
 public class ASMAPI {
-    private static final boolean DO_NOT_FIX_INSNBEFORE;
-
-    static {
-        var blackboardVar = Launcher.INSTANCE.blackboard().get(TypesafeMap.Key.getOrCreate(Launcher.INSTANCE.blackboard(), "coremods.use_old_findFirstInstructionBefore", Boolean.class));
-        DO_NOT_FIX_INSNBEFORE = blackboardVar.isPresent() && blackboardVar.get();
-    }
-
     public static MethodNode getMethodNode() {
         return new MethodNode(Opcodes.ASM9);
     }
@@ -322,7 +316,7 @@ public class ASMAPI {
      * @return the found instruction node or null if none matched before the given startIndex
      */
     public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, @Nullable InsnType type, int startIndex) {
-        return findFirstInstructionBefore(method, opCode, type, startIndex, !DO_NOT_FIX_INSNBEFORE);
+        return findFirstInstructionBefore(method, opCode, type, startIndex, !CoreModEngine.DO_NOT_FIX_INSNBEFORE);
     }
 
     /**

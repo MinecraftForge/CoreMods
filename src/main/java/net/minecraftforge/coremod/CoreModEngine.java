@@ -4,6 +4,7 @@
  */
 package net.minecraftforge.coremod;
 
+import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.*;
 import net.minecraftforge.forgespi.coremod.*;
 import org.apache.logging.log4j.LogManager;
@@ -51,6 +52,14 @@ public class CoreModEngine {
             "org.objectweb.asm.Label","org.objectweb.asm.Type",
             "org.objectweb.asm.TypePath","org.objectweb.asm.TypeReference"
     ));
+
+    public static final boolean DO_NOT_FIX_INSNBEFORE;
+
+    static {
+        var blackboardVar = Launcher.INSTANCE.blackboard().get(TypesafeMap.Key.getOrCreate(Launcher.INSTANCE.blackboard(), "coremods.use_old_findFirstInstructionBefore", Boolean.class));
+        DO_NOT_FIX_INSNBEFORE = blackboardVar.isPresent() && blackboardVar.get();
+    }
+
     void loadCoreMod(ICoreModFile coremod) {
         // We have a factory per coremod, to provide namespace and functional isolation between coremods
         final ScriptEngine scriptEngine = NashornFactory.createEngine();
