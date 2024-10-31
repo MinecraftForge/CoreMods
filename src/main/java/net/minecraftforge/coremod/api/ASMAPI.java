@@ -7,6 +7,7 @@ package net.minecraftforge.coremod.api;
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.INameMappingService;
 import net.minecraftforge.coremod.CoreModTracker;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
@@ -28,6 +29,17 @@ import java.util.function.Function;
  * Helper methods for working with ASM.
  */
 public class ASMAPI {
+    private static final boolean INSNBEFORE_DEFAULT_FIXLOGIC;
+
+    static {
+        var version = FMLLoader.versionInfo().mcVersion().split("\\.");
+        int major = Integer.parseInt(version[1]);
+        int minor = version.length > 2 ? Integer.parseInt(version[2]) : 0; // i.e. 1.22 (the 0 is implied)
+
+        // fix findFirstInstructionBefore on 1.21.3 and above by default
+        INSNBEFORE_DEFAULT_FIXLOGIC = major > 21 || (major == 21 && minor >= 3);
+    }
+
     public static MethodNode getMethodNode() {
         return new MethodNode(Opcodes.ASM9);
     }
@@ -292,16 +304,44 @@ public class ASMAPI {
     }
 
     /**
+     * Finds the first instruction with matching opcode before the given index in reverse search.
+     *
+     * @param method     the method to search in
+     * @param opCode     the opcode to search for
+     * @param startIndex the index at which to start searching (inclusive)
+     * @param fixLogic   whether to use the fixed logic for finding instructions before the given startIndex (true by
+     *                   default on versions since 1.21.3, false otherwise)
+     * @return the found instruction node or null if none matched before the given startIndex
+     */
+    public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, int startIndex, boolean fixLogic) {
+        return findFirstInstructionBefore(method, opCode, null, startIndex, fixLogic);
+    }
+
+    /**
      * Finds the first instruction with matching opcode before the given index in reverse search
      *
-     * @param method the method to search in
-     * @param opCode the opcode to search for
+     * @param method     the method to search in
+     * @param opCode     the opcode to search for
      * @param startIndex the index at which to start searching (inclusive)
      * @return the found instruction node or null if none matched before the given startIndex
      */
     public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, @Nullable InsnType type, int startIndex) {
+        return findFirstInstructionBefore(method, opCode, type, startIndex, INSNBEFORE_DEFAULT_FIXLOGIC);
+    }
+
+    /**
+     * Finds the first instruction with matching opcode before the given index in reverse search
+     *
+     * @param method     the method to search in
+     * @param opCode     the opcode to search for
+     * @param startIndex the index at which to start searching (inclusive)
+     * @param fixLogic   whether to use the fixed logic for finding instructions before the given startIndex (true by
+     *                   default on versions since 1.21.3, false otherwise)
+     * @return the found instruction node or null if none matched before the given startIndex
+     */
+    public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, @Nullable InsnType type, int startIndex, boolean fixLogic) {
         boolean checkType = type != null;
-        for (int i = Math.min(method.instructions.size() - 1, startIndex); i >= 0; i--) {
+        for (int i = fixLogic ? Math.min(method.instructions.size() - 1, startIndex) : startIndex; i >= 0; i--) {
             AbstractInsnNode ain = method.instructions.get(i);
             if (ain.getOpcode() == opCode) {
                 if (!checkType || type.get() == ain.getType()) {
