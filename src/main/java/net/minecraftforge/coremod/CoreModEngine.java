@@ -60,7 +60,7 @@ public class CoreModEngine {
     static {
         var blackboardVar = Launcher.INSTANCE.blackboard().get(TypesafeMap.Key.getOrCreate(Launcher.INSTANCE.blackboard(), "coremods.use_old_findFirstInstructionBefore", Boolean.class));
         if (DO_NOT_FIX_INSNBEFORE = blackboardVar.isPresent() && blackboardVar.get()) {
-            LOGGER.debug("CoreMods will not fix ASMAPI.findFirstInstructionBefore by default, as requested by FML");
+            LOGGER.debug("CoreMods will preserve legacy behavior of ASMAPI.findFirstInstructionBefore for backwards-compatibility");
         }
     }
 
