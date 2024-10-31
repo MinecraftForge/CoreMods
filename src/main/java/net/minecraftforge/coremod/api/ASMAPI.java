@@ -29,11 +29,11 @@ import java.util.function.Function;
  * Helper methods for working with ASM.
  */
 public class ASMAPI {
-    private static final boolean INSNBEFORE_DEFAULT_FIXLOGIC;
+    private static final boolean DO_NOT_FIX_INSNBEFORE;
 
     static {
         var blackboardVar = Launcher.INSTANCE.blackboard().get(TypesafeMap.Key.getOrCreate(Launcher.INSTANCE.blackboard(), "fml.coremods.use_old_findFirstInstructionBefore", Boolean.class));
-        INSNBEFORE_DEFAULT_FIXLOGIC = blackboardVar.isEmpty() || !blackboardVar.get().booleanValue();
+        DO_NOT_FIX_INSNBEFORE = blackboardVar.isEmpty() || blackboardVar.get();
     }
 
     public static MethodNode getMethodNode() {
@@ -322,7 +322,7 @@ public class ASMAPI {
      * @return the found instruction node or null if none matched before the given startIndex
      */
     public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, @Nullable InsnType type, int startIndex) {
-        return findFirstInstructionBefore(method, opCode, type, startIndex, INSNBEFORE_DEFAULT_FIXLOGIC);
+        return findFirstInstructionBefore(method, opCode, type, startIndex, !DO_NOT_FIX_INSNBEFORE);
     }
 
     /**
