@@ -6,7 +6,6 @@ package net.minecraftforge.coremod.api;
 
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.INameMappingService;
-import cpw.mods.modlauncher.api.TypesafeMap;
 import net.minecraftforge.coremod.CoreModEngine;
 import net.minecraftforge.coremod.CoreModTracker;
 import org.jetbrains.annotations.Nullable;
