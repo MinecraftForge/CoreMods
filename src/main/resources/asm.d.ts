@@ -397,10 +397,6 @@ declare interface Java {
     
     type(name: 'org.objectweb.asm.tree.TypeInsnNode'): _TypeInsnNode
     
-    type(name: 'org.objectweb.asm.tree.InsnNode'): _InsnNode
-    
-    type(name: 'org.objectweb.asm.tree.InsnNode'): _InsnNode
-    
     type(name: 'org.objectweb.asm.Opcodes'): _Opcodes
 }
 
