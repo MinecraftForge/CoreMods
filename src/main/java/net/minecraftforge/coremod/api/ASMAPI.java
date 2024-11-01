@@ -91,6 +91,20 @@ public class ASMAPI {
     }
 
     /**
+     * Builds a new {@link MethodInsnNode} with the given parameters. The opcode of the method call is determined by the
+     * given {@link MethodType}.
+     *
+     * @param type             The type of method call
+     * @param ownerName        The method owner (class)
+     * @param methodName       The method name
+     * @param methodDescriptor The method descriptor
+     * @return The built method call node
+     */
+    public static MethodInsnNode buildMethodCall(final MethodType type, final String ownerName, final String methodName, final String methodDescriptor) {
+        return new MethodInsnNode(type.toOpcode(), ownerName, methodName, methodDescriptor, type == MethodType.INTERFACE);
+    }
+
+    /**
      * Signifies the type of number constant for a {@link NumberType}.
      */
     public enum NumberType {
