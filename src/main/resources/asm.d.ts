@@ -2,21 +2,21 @@ declare interface _AbstractInsnNode {
     opcode: number
 }
 
-declare interface _LdcInsnNode extends AbstractInsnNode {
+declare interface _LdcInsnNode extends _AbstractInsnNode {
     new(constant: any)
     cst: any
 }
 
-declare interface _VarInsnNode extends AbstractInsnNode {
+declare interface _VarInsnNode extends _AbstractInsnNode {
     new(opcode: number, varIdx: number)
     "var": number
 }
 
-declare interface _InsnNode extends AbstractInsnNode {
+declare interface _InsnNode extends _AbstractInsnNode {
     new(opcode: number)
 }
 
-declare interface _MethodInsnNode extends AbstractInsnNode {
+declare interface _MethodInsnNode extends _AbstractInsnNode {
     new(opcode: number, owner: string, name: string, descriptor: string, isInterface?: boolean)
     owner: string,
     name: string,
@@ -24,7 +24,7 @@ declare interface _MethodInsnNode extends AbstractInsnNode {
     itf: boolean
 }
 
-declare interface _TypeInsnNode extends AbstractInsnNode {
+declare interface _TypeInsnNode extends _AbstractInsnNode {
     new(opcode: number, type: string)
     desc: string
 }
