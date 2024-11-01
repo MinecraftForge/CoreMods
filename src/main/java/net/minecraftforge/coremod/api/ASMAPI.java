@@ -142,9 +142,10 @@ public class ASMAPI {
      * @param name The SRG name of the method
      * @return The mapped name of the method
      *
-     * @deprecated Forge no longer uses SRG names in production
+     * @apiNote As of Minecraft 1.20.4, Forge no longer uses SRG names in production. While the mapping system will
+     *     still work for sake of backwards-compatibility, you should not be using this method if you are on 1.20.4 or
+     *     later.
      */
-    @Deprecated(forRemoval = true, since = "5.1")
     public static String mapMethod(String name) {
         return map(name, INameMappingService.Domain.METHOD);
     }
@@ -155,14 +156,14 @@ public class ASMAPI {
      * @param name The SRG name of the field
      * @return The mapped name of the field
      *
-     * @deprecated Forge no longer uses SRG names in production
+     * @apiNote As of Minecraft 1.20.4, Forge no longer uses SRG names in production. While the mapping system will
+     *     still work for sake of backwards-compatibility, you should not be using this method if you are on 1.20.4 or
+     *     later.
      */
-    @Deprecated(forRemoval = true, since = "5.1")
     public static String mapField(String name) {
         return map(name, INameMappingService.Domain.FIELD);
     }
 
-    @Deprecated(forRemoval = true, since = "5.1")
     private static String map(String name, INameMappingService.Domain domain) {
         return Optional.ofNullable(Launcher.INSTANCE).
                    map(Launcher::environment).
