@@ -104,6 +104,10 @@ public class ASMAPI {
         return new MethodInsnNode(type.toOpcode(), ownerName, methodName, methodDescriptor, type == MethodType.INTERFACE);
     }
 
+    public static FieldInsnNode buildFieldCall(final int opcode, final String owner, final String name, final String desc) {
+        return new FieldInsnNode(opcode, owner, name, desc);
+    }
+
     /**
      * Signifies the type of number constant for a {@link NumberType}.
      */
