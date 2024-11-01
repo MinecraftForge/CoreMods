@@ -91,6 +91,24 @@ public class ASMAPI {
     }
 
     /**
+     * Builds a new {@link MethodInsnNode} with the given parameters. The opcode of the method call is determined by the
+     * given {@link MethodType}.
+     *
+     * @param type             The type of method call
+     * @param ownerName        The method owner (class)
+     * @param methodName       The method name
+     * @param methodDescriptor The method descriptor
+     * @return The built method call node
+     */
+    public static MethodInsnNode buildMethodCall(final MethodType type, final String ownerName, final String methodName, final String methodDescriptor) {
+        return new MethodInsnNode(type.toOpcode(), ownerName, methodName, methodDescriptor, type == MethodType.INTERFACE);
+    }
+
+    public static FieldInsnNode buildFieldCall(final int opcode, final String owner, final String name, final String desc) {
+        return new FieldInsnNode(opcode, owner, name, desc);
+    }
+
+    /**
      * Signifies the type of number constant for a {@link NumberType}.
      */
     public enum NumberType {
@@ -378,6 +396,70 @@ public class ASMAPI {
                         methodInsnNode.desc.equals(descriptor)) {
                     return methodInsnNode;
                 }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Finds the first method call in the given method matching the given type, owner, name and descriptor.
+     *
+     * @param method     the method to search in
+     * @param opcode     the opcode of field call to search for
+     * @param owner      the method call's owner to search for
+     * @param name       the method call's name
+     * @param descriptor the method call's descriptor
+     * @return the found method call node or null if none matched
+     */
+    public static @Nullable FieldInsnNode findFirstFieldCall(MethodNode method, int opcode, String owner, String name, String descriptor) {
+        return findFirstFieldCallAfter(method, opcode, owner, name, descriptor, 0);
+    }
+
+    /**
+     * Finds the first method call in the given method matching the given type, owner, name and descriptor after the
+     * instruction given index.
+     *
+     * @param method     the method to search in
+     * @param opcode     the opcode of field call to search for
+     * @param owner      the method call's owner to search for
+     * @param name       the method call's name
+     * @param descriptor the method call's descriptor
+     * @param startIndex the index after which to start searching (inclusive)
+     * @return the found method call node, null if none matched after the given index
+     */
+    public static @Nullable FieldInsnNode findFirstFieldCallAfter(MethodNode method, int opcode, String owner, String name, String descriptor, int startIndex) {
+        for (int i = Math.max(0, startIndex); i < method.instructions.size(); i++) {
+            if (method.instructions.get(i) instanceof FieldInsnNode insn
+                    && insn.getOpcode() == opcode
+                    && insn.owner.equals(owner)
+                    && insn.name.equals(name)
+                    && insn.desc.equals(descriptor)) {
+                return insn;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Finds the first method call in the given method matching the given type, owner, name and descriptor before the
+     * given index in reverse search.
+     *
+     * @param method     the method to search in
+     * @param opcode     the opcode of field call to search for
+     * @param owner      the method call's owner to search for
+     * @param name       the method call's name
+     * @param descriptor the method call's descriptor
+     * @param startIndex the index at which to start searching (inclusive)
+     * @return the found method call node or null if none matched before the given startIndex
+     */
+    public static @Nullable FieldInsnNode findFirstFieldCallBefore(MethodNode method, int opcode, String owner, String name, String descriptor, int startIndex) {
+        for (int i = Math.min(method.instructions.size() - 1, startIndex); i >= 0; i--) {
+            if (method.instructions.get(i) instanceof FieldInsnNode insn
+                    && insn.getOpcode() == opcode
+                    && insn.owner.equals(owner)
+                    && insn.name.equals(name)
+                    && insn.desc.equals(descriptor)) {
+                return insn;
             }
         }
         return null;
