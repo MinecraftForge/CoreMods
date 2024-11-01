@@ -426,6 +426,48 @@ public class ASMAPI {
     }
 
     /**
+     * Inserts/replaces an instruction after/before first {@link MethodInsnNode} that matches the parameters of these
+     * functions in the method provided. Only the first node matching is targeted, all other matches are ignored.
+     *
+     * @param method   The method where you want to find the node
+     * @param type     The type of the old method node
+     * @param owner    The owner of the old method node
+     * @param name     The name of the old method node (you may want to use {@link #mapMethod(String)} if this is a srg
+     *                 name)
+     * @param desc     The desc of the old method node
+     * @param toInsert The instruction that should be inserted
+     * @param mode     How the given code should be inserted
+     * @return True if the node was found and the list was inserted, false otherwise
+     */
+    public static boolean insertInsn(MethodNode method, MethodType type, String owner, String name, String desc, AbstractInsnNode toInsert, InsertMode mode) {
+        var insn = findFirstMethodCall(method, type, owner, name, desc);
+        if (insn == null) return false;
+
+        return insertInsn(method, insn, toInsert, mode);
+    }
+
+    /**
+     * Inserts/replaces an instruction after/before the given instruction.
+     *
+     * @param method   The method where you want to insert the list
+     * @param insn     The instruction where the new instruction should be inserted into
+     * @param toInsert The instruction that should be inserted
+     * @param mode     How the given code should be inserted
+     * @return True if the list was inserted, false otherwise
+     */
+    public static boolean insertInsn(MethodNode method, AbstractInsnNode insn, AbstractInsnNode toInsert, InsertMode mode) {
+        if (!method.instructions.contains(insn)) return false;
+
+        switch (mode) {
+            case INSERT_BEFORE -> method.instructions.insertBefore(insn, toInsert);
+            case INSERT_AFTER -> method.instructions.insert(insn, toInsert);
+            case REMOVE_ORIGINAL -> method.instructions.set(insn, toInsert);
+        }
+
+        return true;
+    }
+
+    /**
      * Builds a new {@link InsnList} out of the specified {@link AbstractInsnNode}s.
      *
      * @param nodes The nodes you want to add
