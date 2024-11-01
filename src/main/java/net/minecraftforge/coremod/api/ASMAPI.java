@@ -51,7 +51,7 @@ public class ASMAPI {
      *
      * @deprecated Renamed to {@link #injectMethodCall(MethodNode, MethodInsnNode)}
      */
-    @Deprecated(forRemoval = true, since = "5.1")
+    @Deprecated(forRemoval = true, since = "6.0")
     public static void appendMethodCall(MethodNode node, MethodInsnNode methodCall) {
         injectMethodCall(node, methodCall);
     }
@@ -257,6 +257,17 @@ public class ASMAPI {
      * Finds the first instruction with matching opcode.
      *
      * @param method the method to search in
+     * @param type   the instruction type to search for
+     * @return the found instruction node or null if none matched
+     */
+    public static AbstractInsnNode findFirstInstruction(MethodNode method, InsnType type) {
+        return findFirstInstructionAfter(method, -2, type, 0);
+    }
+
+    /**
+     * Finds the first instruction with matching opcode.
+     *
+     * @param method the method to search in
      * @param opCode the opcode to search for
      * @param type   the instruction type to search for
      * @return the found instruction node or null if none matched
@@ -278,11 +289,23 @@ public class ASMAPI {
     }
 
     /**
+     * Finds the first instruction with matching opcode after the given start index.
+     *
+     * @param method     the method to search in
+     * @param type       the instruction type to search for
+     * @param startIndex the index to start search after (inclusive)
+     * @return the found instruction node or null if none matched after the given index
+     */
+    public static AbstractInsnNode findFirstInstructionAfter(MethodNode method, InsnType type, int startIndex) {
+        return findFirstInstructionAfter(method, -2, type, startIndex);
+    }
+
+    /**
      * Finds the first instruction with matching opcode after the given start index
      *
-     * @param method the method to search in
-     * @param opCode the opcode to search for
-     * @param type   the instruction type to search for
+     * @param method     the method to search in
+     * @param opCode     the opcode to search for
+     * @param type       the instruction type to search for
      * @param startIndex the index to start search after (inclusive)
      * @return the found instruction node or null if none matched after the given index
      */
@@ -290,11 +313,10 @@ public class ASMAPI {
         boolean checkType = type != null;
         for (int i = Math.max(0, startIndex); i < method.instructions.size(); i++) {
             AbstractInsnNode ain = method.instructions.get(i);
-            if (ain.getOpcode() == opCode) {
-                if (!checkType || type.get() == ain.getType()) {
-                    return ain;
-                }
-            }
+
+            boolean opcodeMatch = opCode < -1 || ain.getOpcode() == opCode;
+            boolean typeMatch = !checkType || type.get() == ain.getType();
+            if (opcodeMatch && typeMatch) return ain;
         }
         return null;
     }
@@ -320,6 +342,23 @@ public class ASMAPI {
      * Finds the first instruction with matching opcode before the given index in reverse search.
      *
      * @param method     the method to search in
+     * @param type       the instruction type to search for
+     * @param startIndex the index at which to start searching (inclusive)
+     * @return the found instruction node or null if none matched before the given startIndex
+     *
+     * @apiNote In Minecraft 1.21.1 and earlier, this method contains broken logic that ignores the {@code startIndex}
+     *     parameter and searches for the requested instruction at the end of the method. This behavior is preserved to
+     *     not disrupt older coremods. If you are on one of these older versions and need to use the fixed logic, please
+     *     use {@link #findFirstInstructionBefore(MethodNode, int, int, boolean)}.
+     */
+    public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, InsnType type, int startIndex) {
+        return findFirstInstructionBefore(method, -2, type, startIndex);
+    }
+
+    /**
+     * Finds the first instruction with matching opcode before the given index in reverse search.
+     *
+     * @param method     the method to search in
      * @param opCode     the opcode to search for
      * @param startIndex the index at which to start searching (inclusive)
      * @param fixLogic   whether to use the fixed logic for finding instructions before the given startIndex (true by
@@ -328,6 +367,20 @@ public class ASMAPI {
      */
     public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, int startIndex, boolean fixLogic) {
         return findFirstInstructionBefore(method, opCode, null, startIndex, fixLogic);
+    }
+
+    /**
+     * Finds the first instruction with matching opcode before the given index in reverse search.
+     *
+     * @param method     the method to search in
+     * @param type       the instruction type to search for
+     * @param startIndex the index at which to start searching (inclusive)
+     * @param fixLogic   whether to use the fixed logic for finding instructions before the given startIndex (true by
+     *                   default on versions since 1.21.3, false otherwise)
+     * @return the found instruction node or null if none matched before the given startIndex
+     */
+    public static AbstractInsnNode findFirstInstructionBefore(MethodNode method, InsnType type, int startIndex, boolean fixLogic) {
+        return findFirstInstructionBefore(method, -2, type, startIndex, fixLogic);
     }
 
     /**
@@ -361,11 +414,10 @@ public class ASMAPI {
         boolean checkType = type != null;
         for (int i = fixLogic ? Math.min(method.instructions.size() - 1, startIndex) : startIndex; i >= 0; i--) {
             AbstractInsnNode ain = method.instructions.get(i);
-            if (ain.getOpcode() == opCode) {
-                if (!checkType || type.get() == ain.getType()) {
-                    return ain;
-                }
-            }
+
+            boolean opcodeMatch = opCode < -1 || ain.getOpcode() == opCode;
+            boolean typeMatch = !checkType || type.get() == ain.getType();
+            if (opcodeMatch && typeMatch) return ain;
         }
         return null;
     }
