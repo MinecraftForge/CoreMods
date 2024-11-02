@@ -41,6 +41,9 @@ dependencies {
     testImplementation(project(':coremods-test-jar'))
     testImplementation(libs.junit.api)
     testImplementation(libs.log4j.api)
+    testImplementation(libs.modlauncher)
+    testImplementation(libs.forgespi)
+    testImplementation(libs.unsafe)
     testRuntimeOnly(libs.bundles.junit.runtime)
     testCompileOnly(libs.nulls)
 }

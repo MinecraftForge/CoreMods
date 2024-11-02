@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) Forge Development LLC
+ * SPDX-License-Identifier: LGPL-2.1-only
+ */
 function initializeCoreMod() {
     return {
         'coremodmethod': {
             'target': {
                 'type': 'METHOD',
-                'class': 'cpw.mods.TestClass',
+                'class': 'net.minecraftforge.coremods.testjar.TestClass',
                 'methodName': 'testInsert',
                 'methodDesc': '()Z'
             },

@@ -4,20 +4,25 @@
  */
 package net.minecraftforge.coremod;
 
-import cpw.mods.modlauncher.api.*;
-import net.minecraftforge.forgespi.coremod.*;
+import cpw.mods.modlauncher.api.ITransformer;
+import net.minecraftforge.forgespi.coremod.ICoreModFile;
+import net.minecraftforge.forgespi.coremod.ICoreModProvider;
 
-import java.util.*;
+import java.util.List;
 
+/**
+ * Exposes the CoreMods system to external systems via ForgeSPI (i.e. FML).
+ */
 public class CoreModProvider implements ICoreModProvider {
-    private CoreModEngine engine = new CoreModEngine();
+    private final CoreModEngine engine = new CoreModEngine();
+
     @Override
     public void addCoreMod(final ICoreModFile file) {
-        engine.loadCoreMod(file);
+        this.engine.loadCoreMod(file);
     }
 
     @Override
     public List<ITransformer<?>> getCoreModTransformers() {
-        return engine.initializeCoreMods();
+        return this.engine.initializeCoreMods();
     }
 }
