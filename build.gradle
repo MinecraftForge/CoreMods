@@ -39,11 +39,15 @@ dependencies {
     testImplementation('org.powermock:powermock-core:2.0.+')
     testImplementation('org.hamcrest:hamcrest-core:2.2')
     testImplementation('org.apache.logging.log4j:log4j-core:2.19.0')
+    testImplementation(libs.modlauncher)
+    testImplementation(libs.forgespi)
+    testImplementation(libs.unsafe)
     testCompileOnly('org.jetbrains:annotations:21.0.1')
     testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.+')
     testRuntimeOnly(project(':coremods-test-jar'))
-    
+
     compileOnly(libs.modlauncher)
+    compileOnly(libs.securemodules)
     implementation(libs.log4j.api)
     api(libs.bundles.asm)
     compileOnly(libs.forgespi)

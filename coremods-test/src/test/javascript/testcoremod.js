@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Forge Development LLC
+ * SPDX-License-Identifier: LGPL-2.1-only
+ */
 function initializeCoreMod() {
     print("Hello");
     Java.type('net.minecraftforge.coremod.api.ASMAPI').loadFile('testcoremod2.js')
