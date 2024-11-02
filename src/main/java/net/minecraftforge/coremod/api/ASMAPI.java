@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,8 +30,130 @@ import java.util.function.Function;
  * Helper methods for working with ASM.
  */
 public class ASMAPI {
+    /**
+     * Creates a new empty {@link MethodNode}.
+     *
+     * @return The created method node
+     *
+     * @see MethodNode#MethodNode(int)
+     */
     public static MethodNode getMethodNode() {
-        return new MethodNode(Opcodes.ASM9);
+        var method = new MethodNode(Opcodes.ASM9);
+
+        // ASM usually creates an empty list for null exceptions on the other constructors
+        // let's do this as well, just to make sure we don't run into problems later.
+        method.exceptions = new ArrayList<>();
+
+        return method;
+    }
+
+    /**
+     * Creates a new empty {@link MethodNode} with the given access codes, name and descriptor.
+     *
+     * @param access     The access codes
+     * @param name       The method name
+     * @param descriptor The method descriptor
+     * @return The created method node
+     *
+     * @see MethodNode#MethodNode(int, int, String, String, String, String[])
+     */
+    public static MethodNode getMethodNode(int access, String name, String descriptor) {
+        return new MethodNode(Opcodes.ASM9, access, name, descriptor, null, null);
+    }
+
+    /**
+     * Creates a new empty {@link MethodNode} with the given access codes, name, descriptor, and signature.
+     *
+     * @param access     The access codes
+     * @param name       The method name
+     * @param descriptor The method descriptor
+     * @param signature  The method signature
+     * @return The created method node
+     *
+     * @see MethodNode#MethodNode(int, int, String, String, String, String[])
+     */
+    public static MethodNode getMethodNode(int access, String name, String descriptor, @Nullable String signature) {
+        return new MethodNode(Opcodes.ASM9, access, name, descriptor, signature, null);
+    }
+
+    /**
+     * Creates a new empty {@link MethodNode} with the given access codes, name, descriptor, signature, and exceptions.
+     *
+     * @param access     The access codes
+     * @param name       The method name
+     * @param descriptor The method descriptor
+     * @param signature  The method signature
+     * @param exceptions The internal names of the method's exceptions
+     * @return The created method node
+     *
+     * @see MethodNode#MethodNode(int, int, String, String, String, String[])
+     */
+    public static MethodNode getMethodNode(int access, String name, String descriptor, @Nullable String signature, @Nullable String[] exceptions) {
+        return new MethodNode(Opcodes.ASM9, access, name, descriptor, signature, exceptions);
+    }
+
+    /**
+     * Creates a new empty {@link FieldNode} with the given access codes, name, and descriptor.
+     *
+     * @param access     The access codes
+     * @param name       The field name
+     * @param descriptor The field descriptor
+     * @return The created field node
+     *
+     * @see FieldNode#FieldNode(int, int, String, String, String, Object)
+     */
+    public static FieldNode getFieldNode(int access, String name, String descriptor) {
+        return new FieldNode(Opcodes.ASM9, access, name, descriptor, null, null);
+    }
+
+    /**
+     * Creates a new empty {@link FieldNode} with the given access codes, name, descriptor, and signature.
+     *
+     * @param access     The access codes
+     * @param name       The field name
+     * @param descriptor The field descriptor
+     * @param signature  The field signature
+     * @return The created field node
+     *
+     * @see FieldNode#FieldNode(int, int, String, String, String, Object)
+     */
+    public static FieldNode getFieldNode(int access, String name, String descriptor, String signature) {
+        return new FieldNode(Opcodes.ASM9, access, name, descriptor, signature, null);
+    }
+
+    /**
+     * Creates a new empty {@link FieldNode} with the given access codes, name, descriptor, signature, and initial
+     * object value.
+     *
+     * @param access     The access codes
+     * @param name       The field name
+     * @param descriptor The field descriptor
+     * @param signature  The field signature
+     * @param value      The initial value of the field
+     * @return The created field node
+     *
+     * @see FieldNode#FieldNode(int, int, String, String, String, Object)
+     */
+    public static FieldNode getFieldNode(int access, String name, String descriptor, String signature, String value) {
+        return new FieldNode(Opcodes.ASM9, access, name, descriptor, signature, value);
+    }
+
+    /**
+     * Creates a new empty {@link FieldNode} with the given access codes, name, descriptor, signature, and initial
+     * number value.
+     *
+     * @param access     The access codes
+     * @param name       The field name
+     * @param descriptor The field descriptor
+     * @param signature  The field signature
+     * @param value      The initial value of the field
+     * @param valueType  The number type of the initial value
+     * @return The created field node
+     *
+     * @see FieldNode#FieldNode(int, int, String, String, String, Object)
+     */
+    public static FieldNode getFieldNode(int access, String name, String descriptor, String signature, Number value, NumberType valueType) {
+        return new FieldNode(Opcodes.ASM9, access, name, descriptor, signature, castNumber(value, valueType));
     }
 
     /**
