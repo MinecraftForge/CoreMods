@@ -157,6 +157,86 @@ public class ASMAPI {
     }
 
     /**
+     * Finds the first method node from the given class node that matches the given name and descriptor.
+     *
+     * @param clazz The class node to search
+     * @param name  The name of the desired method
+     * @param desc  The descriptor of the desired method
+     * @return The found method node or null if none matched
+     */
+    public static @Nullable MethodNode findMethodNode(ClassNode clazz, String name, String desc) {
+        return findMethodNode(clazz, name, desc, null, false);
+    }
+
+    /**
+     * Finds the first method node from the given class node that matches the given name, descriptor, and signature.
+     *
+     * @param clazz     The class node to search
+     * @param name      The name of the desired method
+     * @param desc      The descriptor of the desired method
+     * @param signature The signature of the desired method
+     * @return The found method node or null if none matched
+     *
+     * @apiNote This method will attempt to match the signature of the method, even if it is {@code null}. It may be
+     *     useful for that use case in particular. If you have no need to match the signature, consider using
+     *     {@link #findMethodNode(ClassNode, String, String)}
+     */
+    public static @Nullable MethodNode findMethodNode(ClassNode clazz, String name, String desc, @Nullable String signature) {
+        return findMethodNode(clazz, name, desc, signature, true);
+    }
+
+    private static @Nullable MethodNode findMethodNode(ClassNode clazz, String name, String desc, String signature, boolean checkSignature) {
+        for (MethodNode method : clazz.methods) {
+            // we have to use Objects.equals here in case the found method has null attributes
+            if (Objects.equals(method.name, name) && Objects.equals(method.desc, desc) && (!checkSignature || Objects.equals(method.signature, signature))) {
+                return method;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Finds the first field node from the given class node that matches the given name and descriptor.
+     *
+     * @param clazz The class node to search
+     * @param name  The name of the desired field
+     * @param desc  The descriptor of the desired field
+     * @return The found field node or null if none matched
+     */
+    public static @Nullable FieldNode findFieldNode(ClassNode clazz, String name, String desc) {
+        return findFieldNode(clazz, name, desc, null, false);
+    }
+
+    /**
+     * Finds the first field node from the given class node that matches the given name, descriptor, and signature.
+     *
+     * @param clazz     The class node to search
+     * @param name      The name of the desired field
+     * @param desc      The descriptor of the desired field
+     * @param signature The signature of the desired field
+     * @return The found field node or null if none matched
+     *
+     * @apiNote This method will attempt to match the signature of the field, even if it is {@code null}. It may be
+     *     useful for that use case in particular. If you have no need to match the signature, consider using
+     *     {@link #findFieldNode(ClassNode, String, String)}
+     */
+    public static @Nullable FieldNode findFieldNode(ClassNode clazz, String name, String desc, @Nullable String signature) {
+        return findFieldNode(clazz, name, desc, signature, true);
+    }
+
+    private static @Nullable FieldNode findFieldNode(ClassNode clazz, String name, String desc, String signature, boolean checkSignature) {
+        for (FieldNode field : clazz.fields) {
+            // we have to use Objects.equals here in case the found field has null attributes
+            if (Objects.equals(field.name, name) && Objects.equals(field.desc, desc) && (!checkSignature || Objects.equals(field.signature, signature))) {
+                return field;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Injects a method call to the beginning of the given method.
      *
      * @param node       The method to inject the call into
