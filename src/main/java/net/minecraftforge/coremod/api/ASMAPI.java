@@ -117,7 +117,7 @@ public class ASMAPI {
      *
      * @see FieldNode#FieldNode(int, int, String, String, String, Object)
      */
-    public static FieldNode getFieldNode(int access, String name, String descriptor, String signature) {
+    public static FieldNode getFieldNode(int access, String name, String descriptor, @Nullable String signature) {
         return new FieldNode(Opcodes.ASM9, access, name, descriptor, signature, null);
     }
 
@@ -134,7 +134,7 @@ public class ASMAPI {
      *
      * @see FieldNode#FieldNode(int, int, String, String, String, Object)
      */
-    public static FieldNode getFieldNode(int access, String name, String descriptor, String signature, String value) {
+    public static FieldNode getFieldNode(int access, String name, String descriptor, @Nullable String signature, String value) {
         return new FieldNode(Opcodes.ASM9, access, name, descriptor, signature, value);
     }
 
@@ -152,7 +152,7 @@ public class ASMAPI {
      *
      * @see FieldNode#FieldNode(int, int, String, String, String, Object)
      */
-    public static FieldNode getFieldNode(int access, String name, String descriptor, String signature, Number value, NumberType valueType) {
+    public static FieldNode getFieldNode(int access, String name, String descriptor, @Nullable String signature, Number value, NumberType valueType) {
         return new FieldNode(Opcodes.ASM9, access, name, descriptor, signature, castNumber(value, valueType));
     }
 
@@ -185,7 +185,7 @@ public class ASMAPI {
         return findMethodNode(clazz, name, desc, signature, true);
     }
 
-    private static @Nullable MethodNode findMethodNode(ClassNode clazz, String name, String desc, String signature, boolean checkSignature) {
+    private static @Nullable MethodNode findMethodNode(ClassNode clazz, String name, String desc, @Nullable String signature, boolean checkSignature) {
         for (MethodNode method : clazz.methods) {
             // we have to use Objects.equals here in case the found method has null attributes
             if (Objects.equals(method.name, name) && Objects.equals(method.desc, desc) && (!checkSignature || Objects.equals(method.signature, signature))) {
@@ -225,7 +225,7 @@ public class ASMAPI {
         return findFieldNode(clazz, name, desc, signature, true);
     }
 
-    private static @Nullable FieldNode findFieldNode(ClassNode clazz, String name, String desc, String signature, boolean checkSignature) {
+    private static @Nullable FieldNode findFieldNode(ClassNode clazz, String name, String desc, @Nullable String signature, boolean checkSignature) {
         for (FieldNode field : clazz.fields) {
             // we have to use Objects.equals here in case the found field has null attributes
             if (Objects.equals(field.name, name) && Objects.equals(field.desc, desc) && (!checkSignature || Objects.equals(field.signature, signature))) {
