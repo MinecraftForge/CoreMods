@@ -55,7 +55,7 @@ dependencies {
     compileOnly(libs.nulls)
 }
 
-jar {
+tasks.named('jar', Jar) {
     manifest {
         attributes([
             'Specification-Title': 'coremods',
@@ -64,7 +64,7 @@ jar {
             'Implementation-Title': project.name,
             'Implementation-Version': project.version,
             'Implementation-Vendor' :'Forge Development LLC'
-        ] as java.util.LinkedHashMap, 'net/minecraftforge/coremod/')
+        ], 'net/minecraftforge/coremod/')
     }
 }
 
