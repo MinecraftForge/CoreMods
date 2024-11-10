@@ -1,17 +1,17 @@
 import net.minecraftforge.gradleutils.PomUtils
 
 plugins {
-    id 'org.cadixdev.licenser' version '0.6.1'
+    id 'net.minecraftforge.licenser' version '1.0.1'
     id 'idea'
     id 'eclipse'
     id 'java-library'
     id 'maven-publish'
-    id 'net.minecraftforge.gradleutils' version '[2.1.2,2.3.0)'
+    id 'net.minecraftforge.gradleutils' version '[2.1.3,2.3.0)'
 }
 
 group 'net.minecraftforge'
 version = gradleutils.tagOffsetVersion
-println("Version: $version")
+println "Version: $version"
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -55,7 +55,7 @@ dependencies {
     compileOnly(libs.nulls)
 }
 
-jar {
+tasks.named('jar', Jar) {
     manifest {
         attributes([
             'Specification-Title': 'coremods',
@@ -64,7 +64,7 @@ jar {
             'Implementation-Title': project.name,
             'Implementation-Version': project.version,
             'Implementation-Vendor' :'Forge Development LLC'
-        ] as java.util.LinkedHashMap, 'net/minecraftforge/coremod/')
+        ], 'net/minecraftforge/coremod/')
     }
 }
 
@@ -93,22 +93,19 @@ publishing {
 
 allprojects {
     ext.VALID_VMS = [
-        'Adoptium':  [16, 17, 18, 19, 20, 21],
-        'Amazon':    [16, 17, 18, 19, 20, 21],
-        'Azul':      (16..21),
-        'BellSoft':  (16..21),
-        'Graal_VM':  [16, 17,     19, 20, 21],
-        'IBM':       [16, 17, 18, 19, 20    ],
-        'Microsoft': [16, 17,             21],
-        'Oracle':    (16..21),
-        'SAP':       (16..20)
+        'Adoptium':  (17..21),
+        'Amazon':    (17..21),
+        'Azul':      (17..21),
+        'BellSoft':  (17..21),
+        'Graal_VM':  [17,     19, 20, 21],
+        'IBM':       [17, 18, 19, 20    ],
+        'Microsoft': [17,             21],
+        'Oracle':    (17..21),
+        'SAP':       (17..20)
     ]
-    ext.VALID_VMS = [ 'Adoptium':  [16] ]
+    ext.VALID_VMS = [ 'Adoptium':  [17] ]
 }
 
-idea {
-    module {
-        downloadJavadoc = true
-        downloadSources = true
-    }
+idea.module {
+    downloadJavadoc = downloadSources = true
 }
