@@ -40,6 +40,10 @@ public class ASMAPI {
      *
      * @param nodes The instructions you want to add
      * @return A new list with the instructions
+     *
+     * @apiNote Due to a bug in Nashorn, invoking this method from your CoreMod with a very large array (or varargs)
+     * will not work due to it being cast to {@code Object[]}. In that case, you will need to wrap this method
+     * like this: {@code ASMAPI.listOf(Java.to([...], Java.type('org.objectweb.asm.tree.AbstractInsnNode[]')))}.
      */
     public static InsnList listOf(AbstractInsnNode... nodes) {
         InsnList list = new InsnList();
@@ -79,6 +83,21 @@ public class ASMAPI {
     }
 
     /**
+     * Inserts/replaces an instruction, with respect to the given {@link InsertMode}, on the given index.
+     *
+     * @param method   The method to insert the instruction into
+     * @param index    The index where the new instruction should be inserted into
+     * @param toInsert The instruction to be inserted
+     * @param mode     How the instruction should be inserted
+     * @return {@code true} if the list was inserted, {@code false} otherwise
+     */
+    public static boolean insertInsn(MethodNode method, int index, AbstractInsnNode toInsert, InsertMode mode) {
+        index = clamp(index, 0, method.instructions.size());
+        var insn = method.instructions.get(index);
+        return insertInsn(method, insn, toInsert, mode);
+    }
+
+    /**
      * Inserts/replaces an instruction, with respect to the given {@link InsertMode}, on the first
      * {@link MethodInsnNode} that matches the parameters of these functions in the method provided. Only the first
      * matching node is targeted, all other matches are ignored.
@@ -108,6 +127,7 @@ public class ASMAPI {
      * Inserts/replaces an instruction list, with respect to the given {@link InsertMode}, on the given instruction.
      *
      * @param method The method to insert the list into
+     * @param insn   The instruction where the list should be inserted into
      * @param list   The list to be inserted
      * @param mode   How the list should be inserted
      * @return {@code true} if the list was inserted, {@code false} otherwise
@@ -124,6 +144,19 @@ public class ASMAPI {
             method.instructions.remove(insn);
 
         return true;
+    }
+
+    /**
+     * Inserts/replaces an instruction list, with respect to the given {@link InsertMode}, on the given index.
+     *
+     * @param method The method to insert the list into
+     * @param index  The index where the list should be inserted into
+     * @param list   The list to be inserted
+     * @param mode   How the list should be inserted
+     * @return {@code true} if the list was inserted, {@code false} otherwise
+     */
+    public static boolean insertInsnList(MethodNode method, int index, InsnList list, InsertMode mode) {
+        return insertInsnList(method, method.instructions.get(clamp(index, 0, method.instructions.size())), list, mode);
     }
 
     /**
@@ -159,7 +192,7 @@ public class ASMAPI {
      * @param insn   The method call to inject
      */
     public static void injectMethodCall(MethodNode method, MethodInsnNode insn) {
-        method.instructions.insertBefore(method.instructions.getFirst(), insn);
+        ASMAPI.insertInsn(method, method.instructions.getFirst(), insn, InsertMode.INSERT_BEFORE);
     }
 
     /**
@@ -264,6 +297,18 @@ public class ASMAPI {
     }
 
     /**
+     * Finds the first instruction with matching opcode after the given start instruction.
+     *
+     * @param method    the method to search in
+     * @param opcode    the opcode to search for
+     * @param startInsn the instruction to start search after (inclusive)
+     * @return the found instruction node or {@code null} if none matched after the given index
+     */
+    public static @Nullable AbstractInsnNode findFirstInstructionAfter(MethodNode method, int opcode, AbstractInsnNode startInsn) {
+        return findFirstInstructionAfter(method, opcode, method.instructions.indexOf(startInsn));
+    }
+
+    /**
      * Finds the first instruction with matching instruction type after the given start index.
      *
      * @param method     the method to search in
@@ -273,6 +318,18 @@ public class ASMAPI {
      */
     public static @Nullable AbstractInsnNode findFirstInstructionAfter(MethodNode method, InsnType type, int startIndex) {
         return findFirstInstructionAfter(method, -2, type, startIndex);
+    }
+
+    /**
+     * Finds the first instruction with matching instruction type after the given start instruction.
+     *
+     * @param method    the method to search in
+     * @param type      the instruction type to search for
+     * @param startInsn the instruction to start search after (inclusive)
+     * @return the found instruction node or {@code null} if none matched after the given index
+     */
+    public static @Nullable AbstractInsnNode findFirstInstructionAfter(MethodNode method, InsnType type, AbstractInsnNode startInsn) {
+        return findFirstInstructionAfter(method, type, method.instructions.indexOf(startInsn));
     }
 
     /**
@@ -297,6 +354,19 @@ public class ASMAPI {
     }
 
     /**
+     * Finds the first instruction with matching opcode and instruction type after the given start instruction.
+     *
+     * @param method    the method to search in
+     * @param opcode    the opcode to search for
+     * @param type      the instruction type to search for
+     * @param startInsn the instruction to start search after (inclusive)
+     * @return the found instruction node or {@code null} if none matched after the given index
+     */
+    public static @Nullable AbstractInsnNode findFirstInstructionAfter(MethodNode method, int opcode, @Nullable InsnType type, AbstractInsnNode startInsn) {
+        return findFirstInstructionAfter(method, opcode, type, method.instructions.indexOf(startInsn));
+    }
+
+    /**
      * Finds the first instruction with matching opcode before the given index in reverse search.
      *
      * @param method     the method to search in
@@ -314,6 +384,21 @@ public class ASMAPI {
     }
 
     /**
+     * Finds the first instruction with matching opcode before the given instruction in reverse search.
+     *
+     * @param method    the method to search in
+     * @param opcode    the opcode to search for
+     * @param startInsn the instruction at which to start searching (inclusive)
+     * @return the found instruction node or {@code null} if none matched before the given startIndex
+     *
+     * @apiNote Since this method is new, it will automatically apply the fixed logic in
+     *     {@link #findFirstInstructionBefore(MethodNode, int, InsnType, int, boolean)}.
+     */
+    public static @Nullable AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opcode, AbstractInsnNode startInsn) {
+        return findFirstInstructionBefore(method, opcode, null, startInsn);
+    }
+
+    /**
      * Finds the first instruction with matching instruction type before the given index in reverse search.
      *
      * @param method     the method to search in
@@ -328,6 +413,21 @@ public class ASMAPI {
      */
     public static @Nullable AbstractInsnNode findFirstInstructionBefore(MethodNode method, InsnType type, int startIndex) {
         return findFirstInstructionBefore(method, -2, type, startIndex);
+    }
+
+    /**
+     * Finds the first instruction with matching instruction type before the given instruction in reverse search.
+     *
+     * @param method    the method to search in
+     * @param type      the instruction type to search for
+     * @param startInsn the index at which to start searching (inclusive)
+     * @return the found instruction node or {@code null} if none matched before the given startIndex
+     *
+     * @apiNote Since this method is new, it will automatically apply the fixed logic in
+     *     {@link #findFirstInstructionBefore(MethodNode, int, InsnType, int, boolean)}.
+     */
+    public static @Nullable AbstractInsnNode findFirstInstructionBefore(MethodNode method, InsnType type, AbstractInsnNode startInsn) {
+        return findFirstInstructionBefore(method, -2, type, startInsn);
     }
 
     /**
@@ -377,6 +477,22 @@ public class ASMAPI {
     }
 
     /**
+     * Finds the first instruction with matching opcode and instruction type before the given instruction in reverse
+     * search.
+     *
+     * @param method    the method to search in
+     * @param opCode    the opcode to search for
+     * @param startInsn the instruction at which to start searching (inclusive)
+     * @return the found instruction node or {@code null} if none matched before the given startIndex
+     *
+     * @apiNote Since this method is new, it will automatically apply the fixed logic in
+     *     {@link #findFirstInstructionBefore(MethodNode, int, InsnType, int, boolean)}.
+     */
+    public static @Nullable AbstractInsnNode findFirstInstructionBefore(MethodNode method, int opCode, @Nullable InsnType type, AbstractInsnNode startInsn) {
+        return findFirstInstructionBefore(method, opCode, type, method.instructions.indexOf(startInsn), true);
+    }
+
+    /**
      * Finds the first instruction with matching opcode and instruction type before the given index in reverse search.
      *
      * @param method     the method to search in
@@ -414,7 +530,7 @@ public class ASMAPI {
 
     /**
      * Finds the first method call in the given method matching the given type, owner, name and descriptor after the
-     * instruction given index.
+     * given index.
      *
      * @param method     the method to search in
      * @param type       the type of method call to search for
@@ -436,6 +552,22 @@ public class ASMAPI {
         }
 
         return null;
+    }
+
+    /**
+     * Finds the first method call in the given method matching the given type, owner, name and descriptor after the
+     * given instruction.
+     *
+     * @param method     the method to search in
+     * @param type       the type of method call to search for
+     * @param owner      the method call's owner to search for
+     * @param name       the method call's name
+     * @param descriptor the method call's descriptor
+     * @param insn       the instruction after which to start searching (inclusive)
+     * @return the found method call node, {@code null} if none matched after the given index
+     */
+    public static @Nullable MethodInsnNode findFirstMethodCallAfter(MethodNode method, MethodType type, String owner, String name, String descriptor, AbstractInsnNode insn) {
+        return findFirstMethodCallAfter(method, type, owner, name, descriptor, method.instructions.indexOf(insn));
     }
 
     /**
@@ -465,6 +597,22 @@ public class ASMAPI {
     }
 
     /**
+     * Finds the first method call in the given method matching the given type, owner, name and descriptor before the
+     * given instruction in reverse search.
+     *
+     * @param method     the method to search in
+     * @param type       the type of method call to search for
+     * @param owner      the method call's owner to search for
+     * @param name       the method call's name
+     * @param descriptor the method call's descriptor
+     * @param insn       the instruction at which to start searching (inclusive)
+     * @return the found method call node or {@code null} if none matched before the given startIndex
+     */
+    public static @Nullable MethodInsnNode findFirstMethodCallBefore(MethodNode method, MethodType type, String owner, String name, String descriptor, AbstractInsnNode insn) {
+        return findFirstMethodCallBefore(method, type, owner, name, descriptor, method.instructions.indexOf(insn));
+    }
+
+    /**
      * Finds the first field call in the given method matching the given opcode, owner, name and descriptor.
      *
      * @param method     the method to search in
@@ -480,7 +628,7 @@ public class ASMAPI {
 
     /**
      * Finds the first field call in the given method matching the given opcode, owner, name and descriptor after the
-     * instruction given index.
+     * given index.
      *
      * @param method     the method to search in
      * @param opcode     the opcode of field call to search for
@@ -501,6 +649,22 @@ public class ASMAPI {
             }
         }
         return null;
+    }
+
+    /**
+     * Finds the first field call in the given method matching the given opcode, owner, name and descriptor after the
+     * given instruction.
+     *
+     * @param method     the method to search in
+     * @param opcode     the opcode of field call to search for
+     * @param owner      the method call's owner to search for
+     * @param name       the method call's name
+     * @param descriptor the method call's descriptor
+     * @param startInsn  the instruction after which to start searching (inclusive)
+     * @return the found method call node, {@code null} if none matched after the given index
+     */
+    public static @Nullable FieldInsnNode findFirstFieldCallAfter(MethodNode method, int opcode, String owner, String name, String descriptor, AbstractInsnNode startInsn) {
+        return findFirstFieldCallAfter(method, opcode, owner, name, descriptor, method.instructions.indexOf(startInsn));
     }
 
     /**
@@ -526,6 +690,22 @@ public class ASMAPI {
             }
         }
         return null;
+    }
+
+    /**
+     * Finds the first field call in the given method matching the given opcode, owner, name and descriptor before the
+     * given instruction in reverse search.
+     *
+     * @param method     the method to search in
+     * @param opcode     the opcode of field call to search for
+     * @param owner      the method call's owner to search for
+     * @param name       the method call's name
+     * @param descriptor the method call's descriptor
+     * @param startInsn  the instruction at which to start searching (inclusive)
+     * @return the found method call node or {@code null} if none matched before the given startIndex
+     */
+    public static @Nullable FieldInsnNode findFirstFieldCallBefore(MethodNode method, int opcode, String owner, String name, String descriptor, AbstractInsnNode startInsn) {
+        return findFirstFieldCallBefore(method, opcode, owner, name, descriptor, method.instructions.indexOf(startInsn));
     }
 
 
@@ -1104,5 +1284,13 @@ public class ASMAPI {
         text.print(pw);
         pw.flush();
         return sw.toString();
+    }
+
+
+    /* MISCELLANEOUS */
+
+    // private because this is really only used to clamp indexes
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
     }
 }
