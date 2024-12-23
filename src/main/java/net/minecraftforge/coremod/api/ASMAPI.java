@@ -112,6 +112,7 @@ public class ASMAPI {
      * Inserts/replaces an instruction list, with respect to the given {@link InsertMode}, on the given instruction.
      *
      * @param method The method to insert the list into
+     * @param insn   The instruction where the list should be inserted into
      * @param list   The list to be inserted
      * @param mode   How the list should be inserted
      * @return {@code true} if the list was inserted, {@code false} otherwise
@@ -163,7 +164,7 @@ public class ASMAPI {
      * @param insn   The method call to inject
      */
     public static void injectMethodCall(MethodNode method, MethodInsnNode insn) {
-        method.instructions.insertBefore(method.instructions.getFirst(), insn);
+        ASMAPI.insertInsn(method, method.instructions.getFirst(), insn, InsertMode.INSERT_BEFORE);
     }
 
     /**
@@ -418,7 +419,7 @@ public class ASMAPI {
 
     /**
      * Finds the first method call in the given method matching the given type, owner, name and descriptor after the
-     * instruction given index.
+     * given index.
      *
      * @param method     the method to search in
      * @param type       the type of method call to search for
@@ -484,7 +485,7 @@ public class ASMAPI {
 
     /**
      * Finds the first field call in the given method matching the given opcode, owner, name and descriptor after the
-     * instruction given index.
+     * given index.
      *
      * @param method     the method to search in
      * @param opcode     the opcode of field call to search for
