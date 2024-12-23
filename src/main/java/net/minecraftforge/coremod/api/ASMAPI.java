@@ -40,6 +40,10 @@ public class ASMAPI {
      *
      * @param nodes The instructions you want to add
      * @return A new list with the instructions
+     *
+     * @apiNote Due to a bug in Nashorn, invoking this method from your CoreMod with a very large array (or varargs)
+     * will not work due to it being cast to {@code Object[]}. In that case, you will need to wrap this method
+     * like this: {@code ASMAPI.listOf(Java.to([...], Java.type('org.objectweb.asm.tree.AbstractInsnNode[]')))}.
      */
     public static InsnList listOf(AbstractInsnNode... nodes) {
         InsnList list = new InsnList();
