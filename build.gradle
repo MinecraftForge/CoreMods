@@ -48,7 +48,7 @@ dependencies {
 
     compileOnly(libs.modlauncher)
     compileOnly(libs.securemodules)
-    implementation(libs.log4j.api)
+    compileOnly(libs.log4j.api)
     api(libs.bundles.asm)
     compileOnly(libs.forgespi)
     implementation(libs.nashorn)
