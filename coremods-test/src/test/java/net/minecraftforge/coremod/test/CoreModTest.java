@@ -23,7 +23,7 @@ public class CoreModTest {
     @Test
     void testJSLoading() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         final CoreModEngine coreModEngine = new CoreModEngine();
-        var loadCoreMod = coreModEngine.getClass().getMethod("loadCoreMod", ICoreModFile.class);
+        var loadCoreMod = coreModEngine.getClass().getDeclaredMethod("loadCoreMod", ICoreModFile.class);
         UnsafeHacks.setAccessible(loadCoreMod);
         loadCoreMod.invoke(coreModEngine, new JSFileLoader("src/test/javascript/testcoremod.js"));
         loadCoreMod.invoke(coreModEngine, new JSFileLoader("src/test/javascript/testcore2mod.js"));

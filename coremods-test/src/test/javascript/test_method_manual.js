@@ -7,8 +7,8 @@ function initializeCoreMod() {
         'coremodmethod': {
             'target': {
                 'type': 'METHOD',
-                'class': 'net.minecraftforge.coremods.testjar.TestClass',
-                'methodName': 'testMethod',
+                'class': 'net.minecraftforge.coremod.testjar.TestClass',
+                'methodName': 'False',
                 'methodDesc': '()Z'
             },
             'transformer': function(method) {
@@ -16,12 +16,12 @@ function initializeCoreMod() {
                 var arrayLength = method.instructions.size();
                 for (var i = 0; i < arrayLength; ++i) {
                     var instruction = method.instructions.get(i);
-                    if (instruction.getOpcode() == Opcodes.ICONST_1) {
+                    if (instruction.getOpcode() == Opcodes.ICONST_0) {
                         var InsnNode = Java.type('org.objectweb.asm.tree.InsnNode');
-                        var newInstruction = new InsnNode(Opcodes.ICONST_0);
+                        var newInstruction = new InsnNode(Opcodes.ICONST_1);
                         method.instructions.insertBefore(instruction, newInstruction);
                         method.instructions.remove(instruction);
-                        print("Transformed!");
+                        print("Manually replaced false with true");
                         break;
                     }
                 }

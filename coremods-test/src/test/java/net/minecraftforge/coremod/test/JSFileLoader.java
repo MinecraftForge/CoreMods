@@ -8,15 +8,16 @@ import net.minecraftforge.forgespi.coremod.ICoreModFile;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.file.FileSystems;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 class JSFileLoader implements ICoreModFile {
     private final Path path;
 
     JSFileLoader(final String path) {
-        this.path = FileSystems.getDefault().getPath(path);
+        this.path = getPathFromResource(path);
     }
 
     @Override
@@ -41,5 +42,23 @@ class JSFileLoader implements ICoreModFile {
     @Override
     public String getOwnerId() {
         return "dummy";
+    }
+
+    protected static Path getPathFromResource(String resource) {
+        var cl = JSFileLoader.class.getClassLoader();
+        var url = cl.getResource(resource);
+        if (url == null)
+            throw new IllegalStateException("Could not find " + resource + " in classloader " + cl);
+
+        try {
+            return Paths.get(url.toURI());
+        } catch (URISyntaxException e) {
+            return sneak(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E extends Throwable, R> R sneak(Throwable e) throws E {
+        throw (E)e;
     }
 }

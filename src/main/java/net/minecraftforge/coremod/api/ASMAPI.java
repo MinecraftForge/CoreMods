@@ -31,7 +31,7 @@ import java.util.function.Function;
  * to prevent boilerplate code, excessive imports, unnecessary loops, and to provide a more user-friendly API for
  * coremod developers.
  */
-@SuppressWarnings("unused") // annoying IDE warnings
+@SuppressWarnings({"unused", "exports"}) // annoying IDE warnings
 public class ASMAPI {
     /* BUILDING INSTRUCTION LISTS */
 

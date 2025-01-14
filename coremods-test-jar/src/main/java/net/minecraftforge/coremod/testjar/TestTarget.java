@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-only
  */
 
-package net.minecraftforge.coremods.testjar;
+package net.minecraftforge.coremod.testjar;
 
 public class TestTarget {
     public static void testCallout() {

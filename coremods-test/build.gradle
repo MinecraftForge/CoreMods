@@ -1,9 +1,10 @@
 plugins {
-    id 'net.minecraftforge.licenser' version '1.0.1'
     id 'eclipse'
     id 'java-library'
-    id 'org.gradlex.extra-java-module-info' version '1.9'
-    id 'net.minecraftforge.gradleutils' version '[2.1.3,2.3.0)'
+    alias libs.plugins.license
+    alias libs.plugins.modules
+    //alias libs.plugins.versions
+    alias libs.plugins.gradleutils
 }
 
 repositories {
@@ -23,17 +24,25 @@ license {
 
 test {
     useJUnitPlatform()
-    reports.html.destination = rootProject.file("build/reports/")
-    reports.junitXml.destination = rootProject.file("build/test-results/")
+    reports.html.outputLocation = rootProject.file("build/reports/")
+    reports.junitXml.outputLocation = rootProject.file("build/test-results/")
 }
 
 test {
-    exclude '**/*'
+    //exclude '**/*'
     useJUnitPlatform()
 }
 
 compileTestJava {
-    exclude '**/*'
+    //exclude '**/*'
+}
+
+sourceSets {
+    test {
+        resources {
+            srcDir 'src/test/javascript/'
+        }
+    }
 }
 
 dependencies {
@@ -42,6 +51,7 @@ dependencies {
     testImplementation(libs.junit.api)
     testImplementation(libs.log4j.api)
     testImplementation(libs.modlauncher)
+    testImplementation(libs.securemodules)
     testImplementation(libs.forgespi)
     testImplementation(libs.unsafe)
     testRuntimeOnly(libs.bundles.junit.runtime)
@@ -66,13 +76,13 @@ if (project.hasProperty('javaVendor') && project.hasProperty('javaVersion')) {
     }
 
     dependencies {
-        groovyScript 'org.apache.ivy:ivy:2.4.0'
-        groovyScript 'org.codehaus.groovy:groovy-all:3.0.19'
+        groovyScript libs.ivy
+        groovyScript libs.groovy
     }
 
     tasks.register('collectTests', JavaExec) {
         classpath = configurations.groovyScript
-        main = 'groovy.ui.GroovyMain'
+        mainClass = 'groovy.ui.GroovyMain'
         args '.github/workflows/aggregate-junit-tests.groovy'
         workingDir rootProject.projectDir
     }
@@ -80,14 +90,16 @@ if (project.hasProperty('javaVendor') && project.hasProperty('javaVersion')) {
     VALID_VMS.each { javaVendor, javaVersions ->
         javaVersions.each { javaVersion ->
             def task = tasks.register("test${javaVendor}${javaVersion}", Test) {
+                testClassesDirs = testing.suites.test.sources.output.classesDirs
+                classpath = testing.suites.test.sources.runtimeClasspath
                 useJUnitPlatform()
                 javaLauncher.set(javaToolchains.launcherFor {
                     it.vendor.set(JvmVendorSpec."${javaVendor.toUpperCase(Locale.ROOT)}" as JvmVendorSpec)
                     it.languageVersion.set(JavaLanguageVersion.of(javaVersion))
                     it.implementation.set(JvmImplementation.VENDOR_SPECIFIC)
                 })
-                reports.html.destination = rootProject.file("build/test_artifacts/test-reports-${javaVendor}-${javaVersion}/")
-                reports.junitXml.destination = rootProject.file("build/test_artifacts/test-results-${javaVendor}-${javaVersion}/")
+                reports.html.outputLocation = rootProject.file("build/test_artifacts/test-reports-${javaVendor}-${javaVersion}/")
+                reports.junitXml.outputLocation = rootProject.file("build/test_artifacts/test-results-${javaVendor}-${javaVersion}/")
             }
             test.dependsOn(task)
             collectTests.mustRunAfter(task)

@@ -17,3 +17,4 @@
 #gradle
 **/build
 **/.gradle
+/coremods-test/logs/
