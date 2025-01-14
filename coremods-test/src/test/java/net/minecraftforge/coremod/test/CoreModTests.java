@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import net.minecraftforge.coremod.testjar.TestClass;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CoreModTests extends TestLaunchTransformerBase {
 
@@ -51,5 +50,25 @@ public class CoreModTests extends TestLaunchTransformerBase {
 
         // Inserts increment() after the push() call, which will make the return {0, 1}
         assertArrayEquals(new int[]{0, 1}, TestClass.testCounter(), "Transformer failed");
+    }
+
+    @Test
+    public void testLoadData() throws Exception {
+        loadCoremod("test_load_data.js");
+
+        if (!isTransformed()) return;
+
+        // Loads a json file containing a string
+        assertEquals("transformed", TestClass.testString(), "Transformer failed");
+    }
+
+    @Test
+    public void testLoadFile() throws Exception {
+        loadCoremod("test_load_file.js");
+
+        if (!isTransformed()) return;
+
+        // Loads a javascript file and uses a function from it
+        assertEquals("transformed", TestClass.testString(), "Transformer failed");
     }
 }

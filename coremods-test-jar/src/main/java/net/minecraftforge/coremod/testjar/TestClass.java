@@ -15,4 +15,8 @@ public class TestClass {
         counts.push();
         return counts.getCounts();
     }
+
+    public static String testString() {
+        return "raw";
+    }
 }
