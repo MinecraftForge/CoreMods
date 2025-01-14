@@ -72,13 +72,18 @@ public class CoreModEngine {
      * @see net.minecraftforge.coremod.api.ASMAPI#findFirstInstructionBefore(org.objectweb.asm.tree.MethodNode, int,
      *     int)
      */
-    public static final boolean DO_NOT_FIX_INSNBEFORE;
+    public static final boolean DO_NOT_FIX_INSNBEFORE = shouldntFixInsnBefore();
 
-    static {
+    private static final boolean shouldntFixInsnBefore() {
+        if (Launcher.INSTANCE == null)
+            return false;
+
         var blackboardVar = Launcher.INSTANCE.blackboard().get(TypesafeMap.Key.getOrCreate(Launcher.INSTANCE.blackboard(), "coremods.use_old_findFirstInstructionBefore", Boolean.class));
-        if (DO_NOT_FIX_INSNBEFORE = blackboardVar.isPresent() && blackboardVar.get()) {
+        if (blackboardVar.isPresent() && blackboardVar.get()) {
             LOGGER.debug("CoreMods will preserve legacy behavior of ASMAPI.findFirstInstructionBefore for backwards-compatibility");
+            return true;
         }
+        return false;
     }
 
     void loadCoreMod(ICoreModFile coremod) {

@@ -41,6 +41,7 @@ public class CoreMod {
      *
      * @see ASMAPI#log(String, String, Object...)
      */
+    @SuppressWarnings("exports")
     public static final Marker COREMODLOG = MarkerManager.getMarker("COREMODLOG").addParents(MarkerManager.getMarker("COREMOD"));
 
     private final ICoreModFile file;
@@ -139,6 +140,7 @@ public class CoreMod {
      *
      * @return The coremod file
      */
+    @SuppressWarnings("exports")
     public ICoreModFile getFile() {
         return this.file;
     }

@@ -16,6 +16,7 @@ import java.util.List;
 public class CoreModProvider implements ICoreModProvider {
     private final CoreModEngine engine = new CoreModEngine();
 
+    @SuppressWarnings("exports")
     @Override
     public void addCoreMod(final ICoreModFile file) {
         this.engine.loadCoreMod(file);
