@@ -11,7 +11,6 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 class JSFileLoader implements ICoreModFile {
     private final Path path;
@@ -51,7 +50,7 @@ class JSFileLoader implements ICoreModFile {
             throw new IllegalStateException("Could not find " + resource + " in classloader " + cl);
 
         try {
-            return Paths.get(url.toURI());
+            return Path.of(url.toURI());
         } catch (URISyntaxException e) {
             return sneak(e);
         }

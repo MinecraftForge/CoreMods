@@ -87,17 +87,17 @@ if (project.hasProperty('javaVendor') && project.hasProperty('javaVersion')) {
         workingDir rootProject.projectDir
     }
 
-    VALID_VMS.each { javaVendor, javaVersions ->
-        javaVersions.each { javaVersion ->
-            def task = tasks.register("test${javaVendor}${javaVersion}", Test) {
+    ((Map<String, List<Integer>>) VALID_VMS).forEach { javaVendor, javaVersions ->
+        for (Integer javaVersion in javaVersions) {
+            var task = tasks.register("test${javaVendor}${javaVersion}", Test) {
                 testClassesDirs = testing.suites.test.sources.output.classesDirs
                 classpath = testing.suites.test.sources.runtimeClasspath
                 useJUnitPlatform()
-                javaLauncher.set(javaToolchains.launcherFor {
-                    it.vendor.set(JvmVendorSpec."${javaVendor.toUpperCase(Locale.ROOT)}" as JvmVendorSpec)
-                    it.languageVersion.set(JavaLanguageVersion.of(javaVersion))
-                    it.implementation.set(JvmImplementation.VENDOR_SPECIFIC)
-                })
+                javaLauncher = javaToolchains.launcherFor {
+                    vendor = JvmVendorSpec."${javaVendor.toUpperCase(Locale.ROOT)}" as JvmVendorSpec
+                    languageVersion = JavaLanguageVersion.of(javaVersion)
+                    implementation = JvmImplementation.VENDOR_SPECIFIC
+                }
                 reports.html.outputLocation = rootProject.file("build/test_artifacts/test-reports-${javaVendor}-${javaVersion}/")
                 reports.junitXml.outputLocation = rootProject.file("build/test_artifacts/test-results-${javaVendor}-${javaVersion}/")
             }

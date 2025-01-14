@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Counter {
-    private List<Integer> counts = new ArrayList<>();
+    private final List<Integer> counts = new ArrayList<>();
 
     public Counter() {
         push();

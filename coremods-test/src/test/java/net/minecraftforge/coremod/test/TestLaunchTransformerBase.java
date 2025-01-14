@@ -20,7 +20,7 @@ import org.junit.jupiter.api.TestInfo;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -36,6 +36,7 @@ public class TestLaunchTransformerBase {
     }
 
     protected static BiConsumer<CoreModEngine, String> LOAD_CORE_MOD = getLoadCoreMod();
+    protected static Runnable RELAUNCH = getRelaunch();
 
     @BeforeEach
     public void setup(TestInfo testInfo) {
@@ -67,6 +68,25 @@ public class TestLaunchTransformerBase {
         }
     }
 
+    protected static Runnable getRelaunch() {
+        try {
+            // Bypass some logging, if log4j.xml doesn't override, cuz it feels like being stupid.
+            var ctr = Launcher.class.getDeclaredConstructor();
+            UnsafeHacks.setAccessible(ctr);
+            var run = Launcher.class.getDeclaredMethod("run", String[].class);
+            UnsafeHacks.setAccessible(run);
+            return () -> {
+                try {
+                    run.invoke(ctr.newInstance(), (Object)new String[] {"--version", "1.0", "--launchTarget", "testharness"});
+                } catch (Throwable e) {
+                    sneak(e);
+                }
+            };
+        } catch (Throwable e) {
+            return sneak(e);
+        }
+    }
+
     protected void loadCoremod(String name) {
         if (!getTransformed())
             LOAD_CORE_MOD.accept(cme, name);
@@ -74,7 +94,7 @@ public class TestLaunchTransformerBase {
 
     private static final String getPath(Class<?> clz) {
         try {
-            return Paths.get(clz.getProtectionDomain().getCodeSource().getLocation().toURI()).toAbsolutePath().toString();
+            return Path.of(clz.getProtectionDomain().getCodeSource().getLocation().toURI()).toAbsolutePath().toString();
         } catch (Throwable e) {
             return sneak(e);
         }
@@ -94,7 +114,8 @@ public class TestLaunchTransformerBase {
 
         try {
             System.setProperty(TRANSFORMED, "true");
-            Launcher.main("--version", "1.0", "--launchTarget", "testharness");
+            System.out.println(System.getProperty(CLASS_NAME) + "." + System.getProperty(METHOD_NAME));
+            RELAUNCH.run();
         } catch (Throwable e) {
             sneak(e);
         } finally {
@@ -119,27 +140,7 @@ public class TestLaunchTransformerBase {
         return System.getProperty(TRANSFORMED) != null;
     }
 
-    //@Test
-    public void testCoreModLoading() {
-        System.setProperty("test.harness.game", "out/production/classes,out/test/classes,out/testJars/classes,build/classes/java/main,build/classes/java/test,build/classes/java/testJars");
-        System.setProperty("test.harness.callable", "net.minecraftforge.coremod.test.TestLaunchTransformer$Callback");
-
-        try {
-            cme = new CoreModEngine();
-            var loadCoreMod = cme.getClass().getDeclaredMethod("loadCoreMod", ICoreModFile.class);
-            UnsafeHacks.setAccessible(loadCoreMod);
-            loadCoreMod.invoke(cme, new JSFileLoader("src/test/javascript/testcoremod.js"));
-            loadCoreMod.invoke(cme, new JSFileLoader("src/test/javascript/testcore2mod.js"));
-            loadCoreMod.invoke(cme, new JSFileLoader("src/test/javascript/testmethodcoremod.js"));
-            loadCoreMod.invoke(cme, new JSFileLoader("src/test/javascript/testmethodcoreinsert.js"));
-
-            Launcher.main("--version", "1.0", "--launchTarget", "testharness");
-        } catch (Throwable e) {
-            sneak(e);
-        }
-    }
-
-    public static class Callback {
+    public static final class Callback {
         public static ServiceRunner supplier() {
             return () -> {
                 try {
